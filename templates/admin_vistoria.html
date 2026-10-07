@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+{% block titulo %}– Vistoria #{{ v.id }}{% endblock %}
+
+{% block conteudo %}
+<section class="admin">
+  <div class="cabecalho">
+    <h1>Vistoria #{{ v.id }} — {{ v.motorista_nome }}</h1>
+    <p class="sub">
+      <a href="{{ url_for('admin_mes', ano=v.data_vistoria[0:4], mes=v.data_vistoria[5:7] | int) }}">← Voltar ao mês</a>
+      &nbsp;·&nbsp; {{ v.veiculo }} · Placa <b>{{ v.placa }}</b>
+    </p>
+  </div>
+
+  <div class="grid-2">
+    <div class="cartao">
+      <h3>Dados da vistoria</h3>
+      <div class="linha"><span>Data</span><b>{{ fmt(v.data_vistoria) }}</b></div>
+      <div class="linha"><span>Km atual</span><b>{{ v.km_atual or '—' }}</b></div>
+      <div class="linha"><span>Condição geral</span><b>{{ v.condicao_geral or '—' }}</b></div>
+      <div class="linha"><span>Externo</span><b>{{ v.cond_externo or '—' }}</b></div>
+      <div class="linha"><span>Pneus</span><b>{{ v.cond_pneus or '—' }}</b></div>
+      <div class="linha"><span>Interior</span><b>{{ v.cond_interno or '—' }}</b></div>
+      <div class="linha"><span>Painel</span><b>{{ v.cond_painel or '—' }}</b></div>
+      <div class="linha"><span>Motor</span><b>{{ v.cond_motor or '—' }}</b></div>
+      <div class="linha"><span>Foto em local claro/dia</span><b>{{ 'Sim ✓' if v.dia_claro else 'Não ✗' }}</b></div>
+      {% if v.observacao %}
+      <div class="linha linha-bloco"><span>Observações do motorista</span><p>{{ v.observacao }}</p></div>
+      {% endif %}
+      {% if v.nota_admin %}
+      <div class="linha linha-bloco"><span>Nota do administrador</span><p>{{ v.nota_admin }}</p></div>
+      {% endif %}
+      <div class="linha"><span>Status</span>
+        <span class="badge badge-{% if v.status == 'aprovada' %}verde{% elif v.status == 'rejeitada' %}vermelho{% else %}cinza{% endif %}">{{ v.status | capitalize }}</span>
+      </div>
+    </div>
+
+    <div class="cartao">
+      <h3>Avaliar vistoria</h3>
+      <form method="post" action="{{ url_for('admin_status', vistoria_id=v.id) }}">
+        <div class="grid-3">
+          <button class="botao botao-ok" type="submit" name="status" value="aprovada">✅ Aprovar</button>
+          <button class="botao botao-nok" type="submit" name="status" value="rejeitada">❌ Rejeitar</button>
+          <button class="botao botao-secundario" type="submit" name="status" value="pendente">↺ Pendente</button>
+        </div>
+        <label class="campo">
+          <span>Nota do administrador</span>
+          <textarea name="nota_admin" rows="3" placeholder="Ex: pneu traseiro precisa de troca...">{{ v.nota_admin }}</textarea>
+        </label>
+      </form>
+      <p class="dica">O motorista vê o status no próprio painel. A próxima vistoria vence 30 dias após a data desta.</p>
+    </div>
+  </div>
+
+  <div class="cartao">
+    <h3>Fotos da vistoria ({{ fotos | length }})</h3>
+    <div class="grade-fotos-admin">
+      {% for f in fotos %}
+        {% set info = categorias.get(f.categoria, (f.categoria, '')) %}
+      <figure class="foto-item">
+        <a href="{{ url_for('servir_foto', subpath=f.caminho) }}" target="_blank">
+          <img src="{{ url_for('servir_thumb', filename=f.thumb.split('/')[-1] if f.thumb else f.caminho.split('/')[-1]) }}" alt="{{ info[0] }}">
+        </a>
+        <figcaption><b>{{ info[0] }}</b><small>{{ info[1] }}</small></figcaption>
+      </figure>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% endblock %}

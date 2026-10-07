@@ -1,0 +1,90 @@
+{% extends "base.html" %}
+{% block titulo %}– {{ motorista.nome }}{% endblock %}
+
+{% block conteudo %}
+<section class="painel-motorista">
+  <div class="cabecalho">
+    <h1>{{ motorista.nome }}</h1>
+    <p class="sub">{{ motorista.veiculo }} · Placa <b>{{ motorista.placa }}</b></p>
+  </div>
+
+  <!-- Aviso da próxima vistoria (regra dos 30 dias) -->
+  <div class="cartao-aviso {% if vencida %}aviso-vermelho{% elif dias is not none and dias <= 7 %}aviso-amarelo{% else %}aviso-verde{% endif %}">
+    {% if ultima %}
+      <div class="aviso-icone">📅</div>
+      <div>
+        <h2>
+          {% if vencida %}
+            VISTORIA VENCIDA!
+          {% else %}
+            Sua próxima vistoria vence em <b>{{ dias }} dia(s)</b>
+          {% endif %}
+        </h2>
+        <p>
+          Última vistoria: <b>{{ ultima.data_vistoria[8:10] }}/{{ ultima.data_vistoria[5:7] }}/{{ ultima.data_vistoria[0:4] }}</b>
+          &nbsp;→&nbsp; Você deve fazer uma <b>nova vistoria até {{ prox[8:10] }}/{{ prox[5:7] }}/{{ prox[0:4] }}</b>
+          (30 dias após a última).
+        </p>
+        {% if vencida %}
+          <p class="destaque">⚠️ Prazo passado — faça a vistoria agora mesmo.</p>
+        {% endif %}
+      </div>
+    {% else %}
+      <div class="aviso-icone">📋</div>
+      <div>
+        <h2>Nenhuma vistoria registrada ainda</h2>
+        <p>Faça a primeira vistoria do veículo agora. O sistema passará a avisar a data da próxima vistoria automaticamente (30 dias).</p>
+      </div>
+    {% endif %}
+    <a class="botao botao-grande" href="{{ url_for('nova_vistoria', motorista_id=motorista.id) }}">📷 Fazer vistoria agora</a>
+  </div>
+
+  <div class="grid-2">
+    <div class="cartao">
+      <h3>Dados do veículo</h3>
+      <div class="linha"><span>Modelo</span><b>{{ motorista.veiculo }}</b></div>
+      <div class="linha"><span>Placa</span><b>{{ motorista.placa }}</b></div>
+      {% if motorista.cor %}<div class="linha"><span>Cor</span><b>{{ motorista.cor }}</b></div>{% endif %}
+      {% if motorista.cpf %}<div class="linha"><span>CPF</span><b>{{ motorista.cpf }}</b></div>{% endif %}
+      {% if motorista.fone %}<div class="linha"><span>Telefone</span><b>{{ motorista.fone }}</b></div>{% endif %}
+    </div>
+
+    <div class="cartao">
+      <h3>Como funciona a vistoria</h3>
+      <ul class="lista">
+        <li>Tire as fotos <b>durante o dia, em local claro</b></li>
+        <li>Externo: frente, traseira, lado esquerdo e direito</li>
+        <li>Os <b>4 pneus separadamente</b> (foto individual de cada)</li>
+        <li>Interior: bancos, porta-malas, teto e piso</li>
+        <li>Painel e motor</li>
+        <li>Avalie a condição de cada área e envie</li>
+        <li>As fotos vão direto para o administrador</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="cartao">
+    <h3>Histórico de vistorias</h3>
+    {% if historico %}
+    <table class="tabela">
+      <thead>
+        <tr><th>Data</th><th>Km</th><th>Condição</th><th>Status</th><th>Nota do admin</th></tr>
+      </thead>
+      <tbody>
+        {% for v in historico %}
+        <tr>
+          <td>{{ fmt(v.data_vistoria) }}</td>
+          <td>{{ v.km_atual or '—' }}</td>
+          <td>{{ v.condicao_geral or '—' }}</td>
+          <td><span class="badge badge-{{ 'verde' if v.status == 'aprovada' else ('vermelho' if v.status == 'rejeitada' else 'cinza') }}">{{ v.status | capitalize }}</span></td>
+          <td>{{ v.nota_admin or '—' }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% else %}
+      <p class="vazio">Sem vistorias registradas.</p>
+    {% endif %}
+  </div>
+</section>
+{% endblock %}

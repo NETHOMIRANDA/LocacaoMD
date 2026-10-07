@@ -1,0 +1,114 @@
+{% extends "base.html" %}
+{% block titulo %}– Nova vistoria{% endblock %}
+
+{% block conteudo %}
+<section class="formulario-vistoria">
+  <div class="cabecalho">
+    <h1>Nova vistoria</h1>
+    <p class="sub">{{ motorista.veiculo }} · Placa <b>{{ motorista.placa }}</b></p>
+  </div>
+
+  <form method="post" enctype="multipart/form-data" class="cartao form">
+    <div class="grid-3">
+      <label class="campo">
+        <span>Data da vistoria</span>
+        <input type="date" name="data_vistoria" value="{{ hoje }}" required>
+      </label>
+      <label class="campo">
+        <span>Km atual</span>
+        <input type="text" name="km_atual" placeholder="Ex: 45.230" inputmode="numeric">
+      </label>
+      <label class="campo">
+        <span>Condição geral</span>
+        <select name="condicao_geral">
+          {% for op in opcoes %}<option>{{ op }}</option>{% endfor %}
+        </select>
+      </label>
+    </div>
+
+    <div class="aviso-luz">
+      <label class="check">
+        <input type="checkbox" name="dia_claro">
+        <span>Confirmo que <b>todas as fotos foram tiradas durante o dia, em local claro e aberto</b>.</span>
+      </label>
+    </div>
+
+    <h2 class="secao">Fotos obrigatórias</h2>
+    <p class="dica">Tire cada foto com boa luz natural. Cada campo aceita apenas 1 foto (JPG ou PNG, até 12 MB).</p>
+
+    <h3 class="subsecao">🚗 Externo – todos os ângulos</h3>
+    <div class="grade-fotos">
+      {% for chave, rotulo, dica in categorias if chave.startswith("externo_") %}
+      <div class="foto-campo">
+        <label class="campo">
+          <span>{{ rotulo }}</span>
+          <input type="file" name="foto_{{ chave }}" accept="image/*" capture="environment" required>
+        </label>
+        <small>{{ dica }}</small>
+      </div>
+      {% endfor %}
+    </div>
+
+    <h3 class="subsecao">🛞 Pneus – cada um separadamente</h3>
+    <div class="grade-fotos">
+      {% for chave, rotulo, dica in categorias if chave.startswith("pneu_") %}
+      <div class="foto-campo">
+        <label class="campo">
+          <span>{{ rotulo }}</span>
+          <input type="file" name="foto_{{ chave }}" accept="image/*" capture="environment" required>
+        </label>
+        <small>{{ dica }}</small>
+      </div>
+      {% endfor %}
+    </div>
+
+    <h3 class="subsecao">🪑 Interno do veículo</h3>
+    <div class="grade-fotos">
+      {% for chave, rotulo, dica in categorias if chave.startswith("interno_") %}
+      <div class="foto-campo">
+        <label class="campo">
+          <span>{{ rotulo }}</span>
+          <input type="file" name="foto_{{ chave }}" accept="image/*" capture="environment" required>
+        </label>
+        <small>{{ dica }}</small>
+      </div>
+      {% endfor %}
+    </div>
+
+    <h3 class="subsecao">⚙️ Painel e motor</h3>
+    <div class="grade-fotos">
+      {% for chave, rotulo, dica in categorias if not chave.startswith("externo_") and not chave.startswith("pneu_") and not chave.startswith("interno_") %}
+      <div class="foto-campo">
+        <label class="campo">
+          <span>{{ rotulo }}</span>
+          <input type="file" name="foto_{{ chave }}" accept="image/*" capture="environment" required>
+        </label>
+        <small>{{ dica }}</small>
+      </div>
+      {% endfor %}
+    </div>
+
+    <h2 class="secao">Avaliação de cada área</h2>
+    <div class="grid-4">
+      {% for chave, rotulo in grupos %}
+      <label class="campo">
+        <span>{{ rotulo }}</span>
+        <select name="cond_{{ chave }}">
+          {% for op in opcoes %}<option>{{ op }}</option>{% endfor %}
+        </select>
+      </label>
+      {% endfor %}
+    </div>
+
+    <label class="campo">
+      <span>Observações (arranhões, amassados, itens a trocar, etc.)</span>
+      <textarea name="observacao" rows="3" placeholder="Ex: risco na porta esquerda, pneu dianteiro gasto..."></textarea>
+    </label>
+
+    <div class="acoes">
+      <a class="botao botao-secundario" href="{{ url_for('painel_motorista', motorista_id=motorista.id) }}">Voltar</a>
+      <button class="botao botao-principal" type="submit">✅ Enviar vistoria</button>
+    </div>
+  </form>
+</section>
+{% endblock %}

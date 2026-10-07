@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% block titulo %}– Escolha o motorista{% endblock %}
+
+{% block conteudo %}
+<section class="hero">
+  <h1>Bem-vindo ao controle de vistorias</h1>
+  <p>Selecione seu nome para ver a condição do seu veículo e fazer a vistoria mensal com fotos.</p>
+</section>
+
+<div class="grade">
+  {% for m in motoristas %}
+    {% set classe = 'badge-vermelho' if m.vencida else ('badge-amarelo' if m.dias is not none and m.dias <= 7 else 'badge-verde') %}
+    <a class="cartao cartao-link" href="{{ url_for('painel_motorista', motorista_id=m.id) }}">
+      <div class="cartao-topo">
+        <span class="nome">{{ m.nome }}</span>
+        <span class="badge {{ classe }}">
+          {% if m.vencida %}VISTORIA VENCIDA{% elif m.dias is none %}NENHUMA VISTORIA{% else %}VENCIMENTO EM {{ m.dias }} DIA(S){% endif %}
+        </span>
+      </div>
+      <div class="cartao-corpo">
+        <div class="linha"><span>Veículo</span><b>{{ m.veiculo }}</b></div>
+        <div class="linha"><span>Placa</span><b>{{ m.placa }}</b></div>
+        {% if m.prox %}
+        <div class="linha"><span>Próxima vistoria</span><b>{{ m.prox[8:10] }}/{{ m.prox[5:7] }}/{{ m.prox[0:4] }}</b></div>
+        {% endif %}
+      </div>
+      <div class="cartao-rodape">Acessar painel →</div>
+      <div class="link-pessoal">
+        <span>🔗 Link pessoal:</span>
+        <code>{{ request.url_root }}m/{{ m.id }}</code>
+      </div>
+    </a>
+  {% else %}
+    <p class="vazio">Nenhum motorista cadastrado ainda. O administrador pode importar ou cadastrar.</p>
+  {% endfor %}
+</div>
+{% endblock %}

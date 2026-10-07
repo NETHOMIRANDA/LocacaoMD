@@ -1,0 +1,128 @@
+{% extends "base.html" %}
+{% block titulo %}– Painel do administrador{% endblock %}
+
+{% block conteudo %}
+<section class="admin">
+  <div class="cabecalho">
+    <h1>Painel do administrador</h1>
+    <p class="sub">Controle mensal das vistorias dos veículos da Locação MD</p>
+  </div>
+
+  <div class="grade-stats">
+    <div class="stat"><span class="stat-num">{{ total_motoristas }}</span><span class="stat-rot">Motoristas ativos</span></div>
+    <div class="stat"><span class="stat-num">{{ vistorias_mes }}</span><span class="stat-rot">Vistorias neste mês</span></div>
+    <div class="stat"><span class="stat-num">{{ pendentes }}</span><span class="stat-rot">Vistorias pendentes</span></div>
+    <div class="stat stat-alerta"><span class="stat-num">{{ atrasados | length }}</span><span class="stat-rot">Vistorias atrasadas</span></div>
+  </div>
+
+  {% if atrasados %}
+  <div class="cartao cartao-alerta">
+    <h3>⚠️ Vistorias atrasadas (fazem mais de 30 dias)</h3>
+    <table class="tabela">
+      <thead><tr><th>Motorista</th><th>Veículo</th><th>Placa</th><th>Última vistoria</th><th>Próxima (vencida)</th><th>Atraso</th></tr></thead>
+      <tbody>
+        {% for a in atrasados %}
+        <tr>
+          <td><b>{{ a.nome }}</b></td>
+          <td>{{ a.veiculo }}</td>
+          <td>{{ a.placa }}</td>
+          <td>—</td>
+          <td>{{ fmt(a.prox) }}</td>
+          <td><span class="badge badge-vermelho">{{ a.dias }} dia(s) atrasado</span></td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% endif %}
+
+  <div class="grid-2">
+    <div class="cartao">
+      <h3>Controle mensal</h3>
+      <form method="get" action="{{ url_for('admin_mes', ano=mes_atual[0:4], mes=mes_atual[5:7] | int) }}" class="filtro-mes">
+        <input type="month" name="mes" value="{{ mes_atual }}" required>
+        <button class="botao botao-principal" type="submit">Ver mês</button>
+      </form>
+      <p class="dica">Escolha qualquer mês/ano para ver todas as vistorias com as fotos da época.</p>
+    </div>
+
+    <div class="cartao">
+      <h3>🔑 Trocar senha do administrador</h3>
+      <form method="post" action="{{ url_for('admin_senha_trocar') }}">
+        <label class="campo"><span>Senha atual</span><input type="password" name="senha_atual" required></label>
+        <label class="campo"><span>Nova senha</span><input type="password" name="senha_nova" required minlength="4"></label>
+        <button class="botao botao-secundario" type="submit">Alterar senha</button>
+      </form>
+    </div>
+  </div>
+
+  <div class="grid-2">
+    <div class="cartao">
+      <h3>Importar dados do sistema anterior</h3>
+      <form method="post" action="{{ url_for('admin_importar') }}">
+        <label class="campo">
+          <span>Caminho do dados_motoristas.json</span>
+          <input type="text" name="caminho_json" placeholder="C:\...\dados_motoristas.json">
+        </label>
+        <button class="botao botao-secundario" type="submit">Importar motoristas</button>
+      </form>
+    </div>
+
+    <div class="cartao">
+      <h3>Fotos</h3>
+      <p class="dica">As fotos das vistorias ficam em <code>fotos/&lt;PLACA&gt;/&lt;DATA&gt;/</code> e só são acessíveis na área do administrador. O controle mensal reúne tudo por mês.</p>
+    </div>
+  </div>
+
+  <div class="cartao">
+    <h3>Motoristas e veículos</h3>
+    <table class="tabela">
+      <thead>
+        <tr><th>Motorista</th><th>Veículo</th><th>Placa</th><th>Última vistoria</th><th>Próxima vistoria</th><th>Status</th><th>Link</th><th></th></tr>
+      </thead>
+      <tbody>
+        {% for m in motoristas %}
+          {% set p = proxima_por_motorista[m.id] %}
+          {% set vencida = p[2] %}
+        <tr class="{% if m.ativo == 0 %}inativa{% endif %}">
+          <td><b>{{ m.nome }}</b></td>
+          <td>{{ m.veiculo }}</td>
+          <td>{{ m.placa }}</td>
+          <td>{% set ult = ultima_por_motorista[m.id] %}{{ fmt(ult.data_vistoria) if ult else '—' }}</td>
+          <td>
+            {% if p[0] %}
+              {{ fmt(p[0]) }}
+              {% if vencida %}<span class="badge badge-vermelho">vencida</span>{% elif p[1] <= 7 %}<span class="badge badge-amarelo">em {{ p[1] }} dia(s)</span>{% endif %}
+            {% else %}
+              <span class="badge badge-cinza">sem vistoria</span>
+            {% endif %}
+          </td>
+          <td><span class="badge badge-{% if m.ativo %}verde{% else %}cinza{% endif %}">{{ 'ativo' if m.ativo else 'inativo' }}</span></td>
+          <td><code class="link-curto">{{ request.url_root }}m/{{ m.id }}</code></td>
+          <td>
+            <form method="post" action="{{ url_for('admin_motorista_toggle', motorista_id=m.id) }}" style="display:inline">
+              <button class="link-botao" type="submit">{{ 'Desativar' if m.ativo else 'Ativar' }}</button>
+            </form>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+
+    <details class="novo-motorista">
+      <summary>+ Cadastrar motorista/veículo</summary>
+      <form method="post" action="{{ url_for('admin_motorista_novo') }}">
+        <div class="grid-3">
+          <label class="campo"><span>Nome</span><input type="text" name="nome" required></label>
+          <label class="campo"><span>Veículo</span><input type="text" name="veiculo" required></label>
+          <label class="campo"><span>Placa</span><input type="text" name="placa" required></label>
+          <label class="campo"><span>Cor</span><input type="text" name="cor"></label>
+          <label class="campo"><span>CPF</span><input type="text" name="cpf"></label>
+          <label class="campo"><span>Telefone</span><input type="text" name="fone"></label>
+        </div>
+        <button class="botao botao-principal" type="submit">Cadastrar</button>
+      </form>
+    </details>
+  </div>
+</section>
+{% endblock %}

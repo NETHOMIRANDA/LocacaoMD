@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% block titulo %}– Vistorias de {{ ano }}/{{ '%02d' | format(mes) }}{% endblock %}
+
+{% block conteudo %}
+<section class="admin">
+  <div class="cabecalho">
+    <h1>Vistorias de {{ mes }}/{{ ano }}</h1>
+    <p class="sub">
+      <a href="{{ url_for('admin_dashboard') }}">← Painel</a>
+    </p>
+  </div>
+
+  {% if vistorias %}
+  <div class="grade-vistorias">
+    {% for item in vistorias %}
+      {% set v = item.vistoria %}
+    <a class="cartao cartao-link cartao-vistoria" href="{{ url_for('admin_vistoria', vistoria_id=v.id) }}">
+      <div class="cartao-topo">
+        <span class="nome">{{ v.motorista_nome }}</span>
+        <span class="badge badge-{% if v.status == 'aprovada' %}verde{% elif v.status == 'rejeitada' %}vermelho{% else %}cinza{% endif %}">{{ v.status | capitalize }}</span>
+      </div>
+      <div class="cartao-corpo">
+        <div class="linha"><span>Veículo</span><b>{{ v.veiculo }} · {{ v.placa }}</b></div>
+        <div class="linha"><span>Data</span><b>{{ fmt(v.data_vistoria) }}</b></div>
+        <div class="linha"><span>Km</span><b>{{ v.km_atual or '—' }}</b></div>
+        <div class="linha"><span>Condição</span><b>{{ v.condicao_geral or '—' }}</b></div>
+        <div class="linha"><span>Interior</span><b>{{ v.cond_interno or '—' }}</b></div>
+        {% if item.thumbs %}
+        <div class="miniaturas">
+          {% for f in item.thumbs %}
+          <img src="{{ url_for('servir_thumb', filename=f.thumb.split('/')[-1]) }}" alt="{{ f.categoria }}">
+          {% endfor %}
+        </div>
+        {% endif %}
+      </div>
+      <div class="cartao-rodape">Ver fotos e detalhes →</div>
+    </a>
+    {% endfor %}
+  </div>
+  {% else %}
+  <p class="vazio">Nenhuma vistoria registrada neste mês.</p>
+  {% endif %}
+</section>
+{% endblock %}

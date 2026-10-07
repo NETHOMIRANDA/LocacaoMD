@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block titulo %}– Administração{% endblock %}
+
+{% block conteudo %}
+<section class="login">
+  <div class="cartao cartao-login">
+    <h1>🔐 Administração</h1>
+    <p class="sub">Área do administrador – controle de vistorias e fotos</p>
+    {% if erro %}<div class="alerta alerta-erro">{{ erro }}</div>{% endif %}
+    <form method="post" action="{{ url_for('admin_entrar') }}">
+      <label class="campo">
+        <span>Senha</span>
+        <input type="password" name="senha" autofocus required>
+      </label>
+      <button class="botao botao-principal botao-block" type="submit">Entrar</button>
+    </form>
+    <p class="dica centralizado">Senha padrão: <code>locaomd123</code> (altere com a variável LOCAOMD_SENHA)</p>
+  </div>
+</section>
+{% endblock %}
