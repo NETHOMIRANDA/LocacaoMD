@@ -3,3 +3,5 @@ fotos/
 __pycache__/
 *.pyc
 .DS_Store
+
+cloudflared.exe
