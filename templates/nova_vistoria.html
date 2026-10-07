@@ -1,6 +1,20 @@
 {% extends "base.html" %}
 {% block titulo %}– Nova vistoria{% endblock %}
 
+{% macro campo_camera(chave, rotulo, dica, placa) %}
+<div class="foto-campo">
+  <img class="exemplo" src="{{ url_for('static', filename='exemplos/' + chave + '.png') }}" alt="Como tirar: {{ rotulo }}">
+  <div class="foto-campo-rotulo">{{ rotulo }}</div>
+  <small>{{ dica }}</small>
+  <button type="button" class="botao botao-camera" onclick="abrirCamera('{{ chave }}')">📷 Tirar foto agora</button>
+  <img class="preview" id="preview-{{ chave }}" alt="Prévia da foto">
+  <div class="foto-status" id="status-{{ chave }}">⏳ Foto não tirada</div>
+  <input type="hidden" name="foto_b64_{{ chave }}" id="foto_b64_{{ chave }}">
+  <input type="hidden" name="captura_{{ chave }}" id="captura_{{ chave }}">
+  <input type="hidden" name="gps_{{ chave }}" id="gps_{{ chave }}">
+</div>
+{% endmacro %}
+
 {% block conteudo %}
 <section class="formulario-vistoria">
   <div class="cabecalho">
@@ -8,7 +22,7 @@
     <p class="sub">{{ motorista.veiculo }} · Placa <b>{{ motorista.placa }}</b></p>
   </div>
 
-  <form method="post" enctype="multipart/form-data" class="cartao form">
+  <form method="post" enctype="multipart/form-data" class="cartao form" id="form-vistoria">
     <div class="grid-3">
       <label class="campo">
         <span>Data da vistoria</span>
@@ -33,58 +47,39 @@
       </label>
     </div>
 
-    <h2 class="secao">Fotos obrigatórias</h2>
-    <p class="dica">Tire cada foto com boa luz natural. Cada campo aceita apenas 1 foto (JPG ou PNG, até 12 MB).</p>
+    <div class="aviso-tempo">
+      🕐 <b>As fotos são tiradas pela câmera no momento da vistoria.</b>
+      A data e a hora ficam gravadas na própria foto e no sistema —
+      não é possível anexar fotos de outro momento.
+    </div>
+
+    <h2 class="secao">Fotos obrigatórias – tire agora pela câmera</h2>
 
     <h3 class="subsecao">🚗 Externo – todos os ângulos</h3>
     <div class="grade-fotos">
       {% for chave, rotulo, dica in categorias if chave.startswith("externo_") %}
-      <div class="foto-campo">
-        <label class="campo">
-          <span>{{ rotulo }}</span>
-          <input type="file" name="foto_{{ chave }}" accept="image/*" capture="environment" required>
-        </label>
-        <small>{{ dica }}</small>
-      </div>
+      {{ campo_camera(chave, rotulo, dica, motorista.placa) }}
       {% endfor %}
     </div>
 
     <h3 class="subsecao">🛞 Pneus – cada um separadamente</h3>
     <div class="grade-fotos">
       {% for chave, rotulo, dica in categorias if chave.startswith("pneu_") %}
-      <div class="foto-campo">
-        <label class="campo">
-          <span>{{ rotulo }}</span>
-          <input type="file" name="foto_{{ chave }}" accept="image/*" capture="environment" required>
-        </label>
-        <small>{{ dica }}</small>
-      </div>
+      {{ campo_camera(chave, rotulo, dica, motorista.placa) }}
       {% endfor %}
     </div>
 
     <h3 class="subsecao">🪑 Interno do veículo</h3>
     <div class="grade-fotos">
       {% for chave, rotulo, dica in categorias if chave.startswith("interno_") %}
-      <div class="foto-campo">
-        <label class="campo">
-          <span>{{ rotulo }}</span>
-          <input type="file" name="foto_{{ chave }}" accept="image/*" capture="environment" required>
-        </label>
-        <small>{{ dica }}</small>
-      </div>
+      {{ campo_camera(chave, rotulo, dica, motorista.placa) }}
       {% endfor %}
     </div>
 
     <h3 class="subsecao">⚙️ Painel e motor</h3>
     <div class="grade-fotos">
       {% for chave, rotulo, dica in categorias if not chave.startswith("externo_") and not chave.startswith("pneu_") and not chave.startswith("interno_") %}
-      <div class="foto-campo">
-        <label class="campo">
-          <span>{{ rotulo }}</span>
-          <input type="file" name="foto_{{ chave }}" accept="image/*" capture="environment" required>
-        </label>
-        <small>{{ dica }}</small>
-      </div>
+      {{ campo_camera(chave, rotulo, dica, motorista.placa) }}
       {% endfor %}
     </div>
 
@@ -111,4 +106,134 @@
     </div>
   </form>
 </section>
+
+<!-- modal da câmera -->
+<div class="modal" id="modal-camera">
+  <div class="modal-caixa">
+    <h3 id="modal-titulo">Tirar foto</h3>
+    <video id="video-camera" autoplay playsinline></video>
+    <div class="modal-avisos">
+      <span id="modal-hora">--:--:--</span>
+      <span id="modal-gps">📍 buscando local...</span>
+    </div>
+    <div class="modal-botoes">
+      <button type="button" class="botao botao-principal" id="btn-capturar">📸 Capturar</button>
+      <button type="button" class="botao botao-secundario" id="btn-fechar">Fechar</button>
+    </div>
+    <p class="dica">Segure firme, enquadre como na imagem de exemplo e capture com a câmera traseira.</p>
+  </div>
+</div>
+
+<script>
+const PLACA = "{{ motorista.placa }}";
+let streamAtual = null;
+let categoriaAtual = null;
+let gpsAtual = "";
+
+const exemplos = {};
+{% for chave, rotulo, dica in categorias %}
+exemplos["{{ chave }}"] = { rotulo: "{{ rotulo | e }}" };
+{% endfor %}
+
+function abrirCamera(chave) {
+  categoriaAtual = chave;
+  document.getElementById("modal-titulo").textContent =
+    "📷 " + exemplos[chave].rotulo + " — PLACA " + PLACA;
+  document.getElementById("modal-camera").classList.add("aberto");
+  gpsAtual = "";
+  document.getElementById("modal-gps").textContent = "📍 buscando local...";
+
+  if (navigator.geolocation) {
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        gpsAtual = pos.coords.latitude.toFixed(6) + "," + pos.coords.longitude.toFixed(6);
+        document.getElementById("modal-gps").textContent = "📍 " + gpsAtual;
+      },
+      () => {
+        document.getElementById("modal-gps").textContent = "📍 local indisponível";
+      },
+      { timeout: 8000 }
+    );
+  } else {
+    document.getElementById("modal-gps").textContent = "📍 local indisponível";
+  }
+
+  navigator.mediaDevices.getUserMedia({
+    video: { facingMode: "environment" },
+    audio: false
+  }).then((s) => {
+    streamAtual = s;
+    document.getElementById("video-camera").srcObject = s;
+  }).catch((err) => {
+    document.getElementById("modal-titulo").textContent =
+      "⚠️ Não foi possível acessar a câmera. Permita o acesso e tente de novo.";
+    console.error(err);
+  });
+
+  // relógio ao vivo no modal (prova de que é tempo real)
+  atualizarHora();
+}
+
+function atualizarHora() {
+  if (!document.getElementById("modal-camera").classList.contains("aberto")) return;
+  const agora = new Date();
+  document.getElementById("modal-hora").textContent =
+    "🕐 " + agora.toLocaleString("pt-BR");
+  setTimeout(atualizarHora, 1000);
+}
+
+function fecharCamera() {
+  if (streamAtual) {
+    streamAtual.getTracks().forEach((t) => t.stop());
+    streamAtual = null;
+  }
+  document.getElementById("modal-camera").classList.remove("aberto");
+}
+
+document.getElementById("btn-fechar").addEventListener("click", fecharCamera);
+
+document.getElementById("btn-capturar").addEventListener("click", () => {
+  if (!streamAtual || !categoriaAtual) return;
+  const video = document.getElementById("video-camera");
+  const canvas = document.createElement("canvas");
+  canvas.width = video.videoWidth;
+  canvas.height = video.videoHeight;
+  const ctx = canvas.getContext("2d");
+  ctx.drawImage(video, 0, 0);
+
+  // marca d'água com data/hora, placa, categoria e GPS
+  const agora = new Date();
+  const dataHora = agora.toLocaleString("pt-BR", { hour12: false });
+  const linhas = [
+    "LOCAÇÃO MD – VISTORIA",
+    "📅 " + dataHora,
+    "🚗 PLACA: " + PLACA,
+    "📷 " + exemplos[categoriaAtual].rotulo
+  ];
+  if (gpsAtual) linhas.push("📍 " + gpsAtual);
+
+  const altura = 26 * linhas.length + 20;
+  ctx.fillStyle = "rgba(0,0,0,0.65)";
+  ctx.fillRect(0, canvas.height - altura, canvas.width, altura);
+  ctx.fillStyle = "#FFFFFF";
+  ctx.font = "bold 22px sans-serif";
+  linhas.forEach((linha, i) => {
+    ctx.fillText(linha, 14, canvas.height - altura + 32 + i * 26);
+  });
+
+  const dataUrl = canvas.toDataURL("image/jpeg", 0.85);
+  document.getElementById("foto_b64_" + categoriaAtual).value = dataUrl;
+  document.getElementById("captura_" + categoriaAtual).value = agora.toISOString();
+  document.getElementById("gps_" + categoriaAtual).value = gpsAtual;
+
+  const preview = document.getElementById("preview-" + categoriaAtual);
+  preview.src = dataUrl;
+  preview.classList.add("tirada");
+  const status = document.getElementById("status-" + categoriaAtual);
+  status.textContent = "✔ Foto tirada às " + agora.toLocaleTimeString("pt-BR");
+  status.classList.add("ok");
+
+  fecharCamera();
+});
+</script>
 {% endblock %}

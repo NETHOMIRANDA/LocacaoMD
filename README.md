@@ -17,6 +17,11 @@ revisa e controla tudo mensalmente.
   - Confirma que as fotos foram tiradas **em local claro e durante o dia**
   - Avaliação (Ótimo/Bom/Regular/Ruim) de cada área + observações
 
+As fotos são **tiradas pela câmera no momento da vistoria**
+(não dá para anexar fotos antigas): cada foto leva marca d'água
+com data/hora, placa, categoria e GPS, e o sistema só aceita
+fotos capturadas nos últimos 5 minutos.
+
 ## O que o administrador faz
 - Área administrativa protegida por senha.
 - Painel com: vistorias do mês, vistorias atrasadas, pendências.

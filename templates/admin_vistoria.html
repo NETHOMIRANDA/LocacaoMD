@@ -60,7 +60,10 @@
         <a href="{{ url_for('servir_foto', subpath=f.caminho) }}" target="_blank">
           <img src="{{ url_for('servir_thumb', filename=f.thumb.split('/')[-1] if f.thumb else f.caminho.split('/')[-1]) }}" alt="{{ info[0] }}">
         </a>
-        <figcaption><b>{{ info[0] }}</b><small>{{ info[1] }}</small></figcaption>
+        <figcaption><b>{{ info[0] }}</b><small>{{ info[1] }}</small>
+          {% if f.captura_em %}<small>🕐 capturada em {{ f.captura_em }}</small>{% endif %}
+          {% if f.gps %}<small>📍 {{ f.gps }}</small>{% endif %}
+        </figcaption>
       </figure>
       {% endfor %}
     </div>

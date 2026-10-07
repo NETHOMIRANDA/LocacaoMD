@@ -97,6 +97,8 @@ def init_db():
             categoria TEXT NOT NULL,
             caminho TEXT NOT NULL,
             thumb TEXT DEFAULT '',
+            captura_em TEXT DEFAULT '',
+            gps TEXT DEFAULT '',
             criado_em TEXT DEFAULT (datetime('now','localtime')),
             FOREIGN KEY (vistoria_id) REFERENCES vistorias(id) ON DELETE CASCADE
         )
@@ -109,11 +111,15 @@ def init_db():
         )
     """)
 
-    # migração: adiciona coluna de condição interna em bancos antigos
-    try:
-        c.execute("ALTER TABLE vistorias ADD COLUMN cond_interno TEXT DEFAULT ''")
-    except sqlite3.OperationalError:
-        pass  # coluna já existe
+    # migração: colunas de captura em tempo real
+    for col, padrao in (("cond_interno", "TEXT DEFAULT ''"),
+                        ("captura_em", "TEXT DEFAULT ''"),
+                        ("gps", "TEXT DEFAULT ''")):
+        tabela = "vistorias" if col == "cond_interno" else "fotos"
+        try:
+            c.execute(f"ALTER TABLE {tabela} ADD COLUMN {col} {padrao}")
+        except sqlite3.OperationalError:
+            pass  # coluna já existe
 
     conn.commit()
     conn.close()

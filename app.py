@@ -3,7 +3,9 @@ Locação MD – Vistorias
 Aplicativo web para controle de vistorias de veículos.
 Execute:  python app.py    ->  http://127.0.0.1:5000
 """
+import base64
 import datetime
+import io
 import os
 import uuid
 
@@ -12,7 +14,6 @@ from flask import (
     session, url_for,
 )
 from PIL import Image
-from werkzeug.utils import secure_filename
 
 import database as db
 
@@ -26,7 +27,6 @@ os.makedirs(FOTOS_DIR, exist_ok=True)
 os.makedirs(THUMBS_DIR, exist_ok=True)
 
 ADMIN_SENHA_ENV = os.environ.get("LOCAOMD_SENHA")
-EXT_PERMITIDAS = {".jpg", ".jpeg", ".png"}
 TAM_MAX = 12 * 1024 * 1024  # 12 MB por foto
 
 db.init_db()
@@ -57,32 +57,47 @@ def fmt(data_iso):
         return data_iso
 
 
-def salvar_foto(arquivo, placa, data_vistoria, categoria):
-    """Salva foto em fotos/<PLACA>/<DATA>/<uuid>.jpg e gera miniatura."""
-    if arquivo is None or not arquivo.filename:
+def salvar_foto_base64(data_url, placa, data_vistoria, categoria):
+    """Decodifica a foto capturada pela câmera (base64) e salva
+    original + miniatura. Retorna (caminho, thumb) ou (None, None)."""
+    if not data_url:
         return None, None
-    ext = os.path.splitext(arquivo.filename)[1].lower()
-    if ext not in EXT_PERMITIDAS:
-        raise ValueError(f"Formato não permitido: {arquivo.filename}")
+    if not data_url.startswith("data:image/"):
+        raise ValueError("Foto inválida (formato inesperado)")
 
+    cabecalho, b64 = data_url.split(",", 1)
+    try:
+        dados = base64.b64decode(b64)
+    except Exception:
+        raise ValueError("Foto inválida (não foi possível decodificar)")
+
+    if len(dados) > TAM_MAX:
+        raise ValueError("Foto muito grande (máximo de 12 MB). Tire a foto novamente.")
+
+    ext = ".png" if "png" in cabecalho else ".jpg"
     nome = f"{uuid.uuid4().hex}{ext}"
     sub = os.path.join(placa.strip().upper().replace(" ", "_"), data_vistoria)
     pasta = os.path.join(FOTOS_DIR, sub)
     os.makedirs(pasta, exist_ok=True)
 
     caminho = os.path.join(pasta, nome)
-    arquivo.save(caminho)
-
-    thumb_name = f"{uuid.uuid4().hex}_thumb{ext}"
-    caminho_thumb = os.path.join(THUMBS_DIR, thumb_name)
     try:
-        with Image.open(caminho) as img:
-            img.thumbnail((420, 420))
-            if img.mode != "RGB":
-                img = img.convert("RGB")
-            img.save(caminho_thumb, "JPEG", quality=78)
+        img = Image.open(io.BytesIO(dados))
+        img.verify()  # garante que é uma imagem real
+        img = Image.open(io.BytesIO(dados))
+        if img.mode != "RGB":
+            img = img.convert("RGB")
+        img.save(caminho, "JPEG", quality=88)
     except Exception:
-        caminho_thumb = caminho
+        raise ValueError("Foto inválida (arquivo corrompido)")
+
+    thumb_name = f"{uuid.uuid4().hex}_thumb.jpg"
+    caminho_thumb = os.path.join(THUMBS_DIR, thumb_name)
+    with Image.open(caminho) as img2:
+        img2.thumbnail((420, 420))
+        if img2.mode != "RGB":
+            img2 = img2.convert("RGB")
+        img2.save(caminho_thumb, "JPEG", quality=78)
 
     return (
         os.path.join(sub, nome).replace("\\", "/"),
@@ -254,21 +269,40 @@ def salvar_vistoria(motorista_id):
         flash("É obrigatório confirmar que as fotos foram tiradas em local claro e durante o dia.", "erro")
         return redirect(url_for("nova_vistoria", motorista_id=motorista_id))
 
-    # coleta das fotos por categoria
+    # coleta das fotos capturadas em tempo real pela câmera
     fotos_enviadas = {}
-    erros = []
+    capturas = {}
+    gps = {}
     for chave, rotulo, _dica in db.CATEGORIAS:
-        arq = request.files.get(f"foto_{chave}")
-        if arq and arq.filename:
-            fotos_enviadas[chave] = arq
+        b64 = request.form.get(f"foto_b64_{chave}", "").strip()
+        captura = request.form.get(f"captura_{chave}", "").strip()
+        g = request.form.get(f"gps_{chave}", "").strip()
+        if b64:
+            fotos_enviadas[chave] = b64
+            capturas[chave] = captura
+            gps[chave] = g
 
-    # exige no mínimo: as 4 externas, os 4 pneus, painel e motor
+    # exige todas as categorias
     obrigatorias = [c[0] for c in db.CATEGORIAS]
     faltando = [c for c in obrigatorias if c not in fotos_enviadas]
     if faltando:
         nomes = dict((c[0], c[1]) for c in db.CATEGORIAS)
-        flash("Faltam fotos obrigatórias: " + ", ".join(nomes[f] for f in faltando), "erro")
+        flash("Faltam fotos obrigatórias (devem ser tiradas pela câmera agora): "
+              + ", ".join(nomes[f] for f in faltando), "erro")
         return redirect(url_for("nova_vistoria", motorista_id=motorista_id))
+
+    # garante que a foto foi tirada AGORA (janela de +-5 minutos do servidor)
+    agora_servidor = datetime.datetime.now(datetime.timezone.utc)
+    for chave, captura_iso in capturas.items():
+        try:
+            t = datetime.datetime.fromisoformat(captura_iso.replace("Z", "+00:00"))
+        except ValueError:
+            flash("Foto sem registro de hora válido. Tire a foto pela câmera agora.", "erro")
+            return redirect(url_for("nova_vistoria", motorista_id=motorista_id))
+        if abs((agora_servidor - t).total_seconds()) > 300:
+            flash("Foto tirada fora do horário permitido (mais de 5 minutos de diferença). "
+                  "Tire todas as fotos pela câmera, agora, no momento da vistoria.", "erro")
+            return redirect(url_for("nova_vistoria", motorista_id=motorista_id))
 
     # salva vistoria
     conn = db.get_connection()
@@ -293,13 +327,15 @@ def salvar_vistoria(motorista_id):
     )
     vistoria_id = cur.lastrowid
 
-    # salva fotos (em caso de erro, remove a vistoria)
+    # salva fotos com registro da hora da captura
     try:
-        for chave, arq in fotos_enviadas.items():
-            caminho, thumb = salvar_foto(arq, m["placa"], data_vistoria, chave)
+        for chave, b64 in fotos_enviadas.items():
+            caminho, thumb = salvar_foto_base64(b64, m["placa"], data_vistoria, chave)
             cur.execute(
-                "INSERT INTO fotos (vistoria_id, categoria, caminho, thumb) VALUES (?,?,?,?)",
-                (vistoria_id, chave, caminho, thumb),
+                "INSERT INTO fotos (vistoria_id, categoria, caminho, thumb, "
+                "captura_em, gps) VALUES (?,?,?,?,?,?)",
+                (vistoria_id, chave, caminho, thumb,
+                 capturas.get(chave, ""), gps.get(chave, "")),
             )
         conn.commit()
     except Exception as e:
