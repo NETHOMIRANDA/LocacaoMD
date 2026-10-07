@@ -37,6 +37,23 @@ python app.py
 ```
 Abra http://127.0.0.1:5000
 
+**Acesso público temporário (túnel HTTPS):**
+para os motoristas usarem de qualquer lugar (a câmera e o GPS
+só funcionam em HTTPS), baixe o cloudflared e rode junto:
+
+```
+# 1) baixe o cloudflared (uma vez)
+#    https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-windows-amd64.exe
+#    salve como cloudflared.exe na pasta do app
+python app.py
+cloudflared.exe tunnel --url http://localhost:5000
+```
+O cloudflared mostra um link tipo
+`https://xxxx.trycloudflare.com` — esse é o link "executável"
+para enviar aos motoristas (funciona no celular, com câmera e GPS).
+O link é temporário: volta a funcionar só enquanto o PC e o
+túnel estiverem ligados, e muda a cada reinício.
+
 **Link pessoal de cada motorista:** na tela inicial (e no painel do
 administrador) cada motorista tem seu próprio link, ex.:
 `http://<ip-do-computador>:5000/m/1`. Envie o link dele para o
