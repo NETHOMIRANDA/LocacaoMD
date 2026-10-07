@@ -43,8 +43,11 @@ terminal mostra o IP da máquina (ex.: http://10.x.x.x:5000). Use
 `http://<ip>:5000/m/<id>` no celular do motorista.
 
 ## Primeiros passos
-1. **Senha do administrador:** por padrão é `locaomd123`.
-   Para alterar, defina a variável de ambiente `LOCAOMD_SENHA` antes de rodar:
+1. **Senha do administrador:** nesta instalação é **`A103114`**.
+   Em uma instalação nova (clone do GitHub) a senha padrão é `locaomd123`.
+   A senha fica salva no banco e pode ser trocada no painel do
+   administrador (sem precisar mexer no código). Para forçar por
+   variável de ambiente, defina `LOCAOMD_SENHA` antes de rodar:
    ```
    set LOCAOMD_SENHA=minhaSenhaNova   (Windows)
    export LOCAOMD_SENHA=minhaSenhaNova (Linux/Mac)
