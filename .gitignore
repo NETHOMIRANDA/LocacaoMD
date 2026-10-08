@@ -5,3 +5,5 @@ __pycache__/
 .DS_Store
 
 cloudflared.exe
+
+tunnel*.log

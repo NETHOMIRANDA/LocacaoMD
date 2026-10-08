@@ -46,13 +46,17 @@ só funcionam em HTTPS), baixe o cloudflared e rode junto:
 #    https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-windows-amd64.exe
 #    salve como cloudflared.exe na pasta do app
 python app.py
-cloudflared.exe tunnel --url http://localhost:5000
+cloudflared.exe tunnel --url http://localhost:5000 --protocol http2
 ```
 O cloudflared mostra um link tipo
 `https://xxxx.trycloudflare.com` — esse é o link "executável"
 para enviar aos motoristas (funciona no celular, com câmera e GPS).
 O link é temporário: volta a funcionar só enquanto o PC e o
 túnel estiverem ligados, e muda a cada reinício.
+
+> **Nota:** se a sua rede derrubar o túnel sozinho (erros
+> "network unreachable" / QUIC), force `--protocol http2`
+> (TCP em vez de UDP/IPv6), que é mais estável.
 
 **Link pessoal de cada motorista:** na tela inicial (e no painel do
 administrador) cada motorista tem seu próprio link, ex.:
