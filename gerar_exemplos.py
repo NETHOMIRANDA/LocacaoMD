@@ -244,25 +244,20 @@ salvar(img, "externo_lado_dir")
 
 # 5-8. Pneus
 PNEUS = [
-    ("pneu_dianteiro_esq", "Pneu DIANTEIRO ESQUERDO", "Foto de perto, só do pneu dianteiro esquerdo"),
-    ("pneu_dianteiro_dir", "Pneu DIANTEIRO DIREITO", "Foto de perto, só do pneu dianteiro direito"),
-    ("pneu_traseiro_esq", "Pneu TRASEIRO ESQUERDO", "Foto de perto, só do pneu traseiro esquerdo"),
-    ("pneu_traseiro_dir", "Pneu TRASEIRO DIREITO", "Foto de perto, só do pneu traseiro direito"),
+    ("pneu_dianteiro_esq", "Pneu DIANTEIRO ESQUERDO", "Foto de perto, só do pneu dianteiro esquerdo", (152, 254), "LADO ESQUERDO"),
+    ("pneu_dianteiro_dir", "Pneu DIANTEIRO DIREITO", "Foto de perto, só do pneu dianteiro direito", (152, 254), "LADO DIREITO"),
+    ("pneu_traseiro_esq", "Pneu TRASEIRO ESQUERDO", "Foto de perto, só do pneu traseiro esquerdo", (262, 254), "LADO ESQUERDO"),
+    ("pneu_traseiro_dir", "Pneu TRASEIRO DIREITO", "Foto de perto, só do pneu traseiro direito", (262, 254), "LADO DIREITO"),
 ]
-for chave, titulo, sub in PNEUS:
+for chave, titulo, sub, alvo, lado in PNEUS:
     img, d = base(titulo, sub)
-    # carro de cima com as 4 rodas marcadas
+    # carro visto de cima com as 4 rodas marcadas
     carro_lado(d, 90, 130, 1.15, (100, 116, 139))
-    alvos = {
-        "pneu_dianteiro_esq": (142, 255), "pneu_dianteiro_dir": (230, 255),
-        "pneu_traseiro_esq": (142, 255), "pneu_traseiro_dir": (230, 255),
-    }
-    cx, cy = alvos[chave]
-    if "dir" in chave:
-        cx += 0  # mesma posição do desenho; diferencia pelo rótulo
+    cx, cy = alvo
     d.ellipse([cx - 34, cy - 34, cx + 34, cy + 34], outline=VERDE, width=6)
-    seta(d, cx - 60, cy - 70, cx - 30, cy - 30, cor=VERDE, largura=5)
-    d.text((cx - 90, cy - 100), "ESTE!", font=fonte(18), fill=(21, 128, 61))
+    seta(d, cx - 70, cy - 80, cx - 28, cy - 30, cor=VERDE, largura=5)
+    d.text((cx - 130, cy - 110), "ESTE!", font=fonte(18), fill=(21, 128, 61))
+    d.text((100, 118), ">>> " + lado + " <<<", font=fonte(16), fill=(30, 64, 175))
     # close-up do pneu
     roda(d, 620, 300, 95)
     d.text((500, 415), "📷 foto de perto, só o pneu", font=fonte(16),

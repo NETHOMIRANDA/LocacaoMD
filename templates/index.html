@@ -1,9 +1,9 @@
-{% extends "base.html" %}
-{% block titulo %}– Escolha o motorista{% endblock %}
+﻿{% extends "base.html" %}
+{% block titulo %}- Escolha o motorista{% endblock %}
 
 {% block conteudo %}
 <section class="hero">
-  <h1>Bem-vindo ao controle de vistorias</h1>
+  <h1>🚗 Controle de Vistorias</h1>
   <p>Selecione seu nome para ver a condição do seu veículo e fazer a vistoria mensal com fotos.</p>
 </section>
 
@@ -14,7 +14,7 @@
       <div class="cartao-topo">
         <span class="nome">{{ m.nome }}</span>
         <span class="badge {{ classe }}">
-          {% if m.vencida %}VISTORIA VENCIDA{% elif m.dias is none %}NENHUMA VISTORIA{% else %}VENCIMENTO EM {{ m.dias }} DIA(S){% endif %}
+          {% if m.vencida %}⚠️ VENCIDA{% elif m.dias is none %}🆕 PRIMEIRA{% else %}📅 VENCE EM {{ m.dias }} DIA(S){% endif %}
         </span>
       </div>
       <div class="cartao-corpo">

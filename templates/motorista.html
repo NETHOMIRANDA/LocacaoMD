@@ -1,36 +1,36 @@
-{% extends "base.html" %}
-{% block titulo %}– {{ motorista.nome }}{% endblock %}
+﻿{% extends "base.html" %}
+{% block titulo %}- {{ motorista.nome }}{% endblock %}
 
 {% block conteudo %}
 <section class="painel-motorista">
   <div class="cabecalho">
     <h1>{{ motorista.nome }}</h1>
-    <p class="sub">{{ motorista.veiculo }} · Placa <b>{{ motorista.placa }}</b></p>
+    <p class="sub">{{ motorista.veiculo }} &bull; Placa <b>{{ motorista.placa }}</b></p>
   </div>
 
   <!-- Aviso da próxima vistoria (regra dos 30 dias) -->
   <div class="cartao-aviso {% if vencida %}aviso-vermelho{% elif dias is not none and dias <= 7 %}aviso-amarelo{% else %}aviso-verde{% endif %}">
     {% if ultima %}
-      <div class="aviso-icone">📅</div>
+      <div class="aviso-icone">{% if vencida %}⚠️{% elif dias is not none and dias <= 7 %}⏳{% else %}✅{% endif %}</div>
       <div>
         <h2>
           {% if vencida %}
             VISTORIA VENCIDA!
           {% else %}
-            Sua próxima vistoria vence em <b>{{ dias }} dia(s)</b>
+            Próxima vistoria em <b>{{ dias }} dia(s)</b>
           {% endif %}
         </h2>
         <p>
           Última vistoria: <b>{{ ultima.data_vistoria[8:10] }}/{{ ultima.data_vistoria[5:7] }}/{{ ultima.data_vistoria[0:4] }}</b>
-          &nbsp;→&nbsp; Você deve fazer uma <b>nova vistoria até {{ prox[8:10] }}/{{ prox[5:7] }}/{{ prox[0:4] }}</b>
+          &nbsp;→&nbsp; Faça uma <b>nova vistoria até {{ prox[8:10] }}/{{ prox[5:7] }}/{{ prox[0:4] }}</b>
           (30 dias após a última).
         </p>
         {% if vencida %}
-          <p class="destaque">⚠️ Prazo passado — faça a vistoria agora mesmo.</p>
+          <p class="destaque">⚠️ Prazo passado - faça a vistoria agora mesmo.</p>
         {% endif %}
       </div>
     {% else %}
-      <div class="aviso-icone">📋</div>
+      <div class="aviso-icone">🔔</div>
       <div>
         <h2>Nenhuma vistoria registrada ainda</h2>
         <p>Faça a primeira vistoria do veículo agora. O sistema passará a avisar a data da próxima vistoria automaticamente (30 dias).</p>
@@ -41,7 +41,7 @@
 
   <div class="grid-2">
     <div class="cartao">
-      <h3>Dados do veículo</h3>
+      <h3>🚗 Dados do veículo</h3>
       <div class="linha"><span>Modelo</span><b>{{ motorista.veiculo }}</b></div>
       <div class="linha"><span>Placa</span><b>{{ motorista.placa }}</b></div>
       {% if motorista.cor %}<div class="linha"><span>Cor</span><b>{{ motorista.cor }}</b></div>{% endif %}
@@ -50,7 +50,7 @@
     </div>
 
     <div class="cartao">
-      <h3>Como funciona a vistoria</h3>
+      <h3>📋 Como funciona a vistoria</h3>
       <ul class="lista">
         <li>Tire as fotos <b>durante o dia, em local claro</b></li>
         <li>Externo: frente, traseira, lado esquerdo e direito</li>
@@ -58,33 +58,37 @@
         <li>Interior: bancos, porta-malas, teto e piso</li>
         <li>Painel e motor</li>
         <li>Avalie a condição de cada área e envie</li>
-        <li>As fotos vão direto para o administrador</li>
       </ul>
     </div>
   </div>
 
-  <div class="cartao">
-    <h3>Histórico de vistorias</h3>
-    {% if historico %}
+  {% if historico %}
+  <div class="cartao" style="margin-top:18px">
+    <h3>📅 Histórico de vistorias</h3>
     <table class="tabela">
       <thead>
-        <tr><th>Data</th><th>Km</th><th>Condição</th><th>Status</th><th>Nota do admin</th></tr>
+        <tr>
+          <th>Data</th><th>Km</th><th>Condição</th><th>Status</th><th></th>
+        </tr>
       </thead>
       <tbody>
         {% for v in historico %}
         <tr>
-          <td>{{ fmt(v.data_vistoria) }}</td>
-          <td>{{ v.km_atual or '—' }}</td>
-          <td>{{ v.condicao_geral or '—' }}</td>
-          <td><span class="badge badge-{{ 'verde' if v.status == 'aprovada' else ('vermelho' if v.status == 'rejeitada' else 'cinza') }}">{{ v.status | capitalize }}</span></td>
-          <td>{{ v.nota_admin or '—' }}</td>
+          <td>{{ v.data_vistoria[8:10] }}/{{ v.data_vistoria[5:7] }}/{{ v.data_vistoria[0:4] }}</td>
+          <td>{{ v.km_atual or '-' }}</td>
+          <td>{{ v.condicao_geral or '-' }}</td>
+          <td>
+            {% if v.status == 'aprovada' %}<span class="badge badge-verde">✅ Aprovada</span>
+            {% elif v.status == 'rejeitada' %}<span class="badge badge-vermelho">❌ Rejeitada</span>
+            {% else %}<span class="badge badge-amarelo">⏳ Pendente</span>{% endif %}
+          </td>
+          <td><a href="#" class="link-curto">Ver detalhes</a></td>
         </tr>
         {% endfor %}
       </tbody>
     </table>
-    {% else %}
-      <p class="vazio">Sem vistorias registradas.</p>
-    {% endif %}
   </div>
+  {% endif %}
+
 </section>
 {% endblock %}

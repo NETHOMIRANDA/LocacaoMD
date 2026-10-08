@@ -601,4 +601,7 @@ def servir_thumb(filename):
 
 # ----------------------------------------------------------------------
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5000, debug=True)
+    # debug=False: o reloader do Flask reinicia em loop quando o OneDrive
+    # toca os arquivos da pasta. Para servir atras do tunel cloudflared,
+    # o modo estavel (sem reloader) e o correreto.
+    app.run(host="0.0.0.0", port=5000)

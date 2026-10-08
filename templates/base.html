@@ -1,9 +1,11 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Locação MD – Vistorias {% block titulo %}{% endblock %}</title>
+<title>Locação MD - Vistorias {% block titulo %}{% endblock %}</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🚗</text></svg>">
 </head>
@@ -13,8 +15,8 @@
     <a class="logo" href="{{ url_for('index') }}">🚗 <b>Locação MD</b> <span>Vistorias</span></a>
     <nav>
       {% if session.admin %}
-        <a href="{{ url_for('admin_dashboard') }}">Painel Admin</a>
-        <a href="{{ url_for('admin_sair') }}">Sair</a>
+        <a href="{{ url_for('admin_dashboard') }}">⚙️ Painel Admin</a>
+        <a href="{{ url_for('admin_sair') }}" class="nav-sair">Sair</a>
       {% else %}
         <a href="{{ url_for('index') }}">Motoristas</a>
         <a href="{{ url_for('admin_login') }}">Administração</a>
@@ -22,19 +24,14 @@
     </nav>
   </div>
 </header>
-
 <main class="conteudo">
   {% with mensagens = get_flashed_messages(with_categories=true) %}
     {% for cat, msg in mensagens %}
       <div class="alerta alerta-{{ cat }}">{{ msg | safe }}</div>
     {% endfor %}
   {% endwith %}
-
   {% block conteudo %}{% endblock %}
 </main>
-
-<footer class="rodape">
-  Locação MD · Controle de vistorias de veículos · Vistoria a cada {{ 30 }} dias
-</footer>
+<footer class="rodape">🚗 Locação MD — Controle de vistorias de veículos — Vistoria a cada 30 dias</footer>
 </body>
 </html>
