@@ -3,7 +3,7 @@
 
 {% macro campo_camera(chave, rotulo, dica, placa) %}
 <div class="foto-campo">
-  <img class="exemplo" src="{{ url_for('static', filename='exemplos/' + chave + '.png') }}" alt="Como tirar: {{ rotulo }}">
+  <img class="exemplo" src="{{ url_for('static', filename='exemplos/' + chave + '.jpg') }}" alt="Como tirar: {{ rotulo }}">
   <div class="foto-campo-rotulo">{{ rotulo }}</div>
   <small>{{ dica }}</small>
   <button type="button" class="botao botao-camera" onclick="abrirCamera('{{ chave }}')">📷 Tirar foto agora</button>
