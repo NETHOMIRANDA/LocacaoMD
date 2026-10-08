@@ -7,6 +7,8 @@
   <div class="foto-campo-rotulo">{{ rotulo }}</div>
   <small>{{ dica }}</small>
   <button type="button" class="botao botao-camera" onclick="abrirCamera('{{ chave }}')">📷 Tirar foto agora</button>
+  <button type="button" class="botao botao-alternativa" onclick="abrirCameraDoSistema('{{ chave }}')" title="Use se a câmera acima negar a permissão">📸 Câmera do sistema</button>
+  <input type="file" id="arquivo-{{ chave }}" accept="image/*" capture="environment" hidden>
   <img class="preview" id="preview-{{ chave }}" alt="Prévia da foto">
   <div class="foto-status" id="status-{{ chave }}">📷 Foto não tirada</div>
   <input type="hidden" name="foto_b64_{{ chave }}" id="foto_b64_{{ chave }}">
@@ -152,6 +154,35 @@ function atualizarHora() {
   setTimeout(atualizarHora, 1000);
 }
 
+/* Aplica a marca d'água (data/hora, placa, categoria e GPS)
+   e grava no formulario. Usada pela camera do modal E pela
+   "camera do sistema" (fallback). */
+function finalizarFoto(chave) {
+  const canvas = document.getElementById("canvas-camera");
+  const ctx = canvas.getContext("2d");
+  const agora = new Date();
+  const ts = agora.toLocaleString("pt-BR");
+  const marca = `${ts} | ${placaAtual} | ${chave}${latAtual ? " | GPS:" + latAtual + "," + lonAtual : ""}`;
+  ctx.font = "bold " + Math.max(14, canvas.width * 0.022) + "px monospace";
+  ctx.fillStyle = "rgba(0,0,0,0.55)";
+  ctx.fillRect(0, canvas.height - 40, canvas.width, 40);
+  ctx.fillStyle = "#FFFFFF";
+  ctx.fillText(marca, 10, canvas.height - 14);
+
+  const dataUrl = canvas.toDataURL("image/jpeg", 0.82);
+  document.getElementById("foto_b64_" + chave).value = dataUrl;
+  document.getElementById("captura_" + chave).value = agora.toISOString();
+  document.getElementById("gps_" + chave).value = latAtual ? latAtual + "," + lonAtual : "";
+
+  const prev = document.getElementById("preview-" + chave);
+  prev.src = dataUrl;
+  prev.classList.add("tirada");
+
+  const st = document.getElementById("status-" + chave);
+  st.textContent = "✅ Foto tirada às " + agora.toLocaleTimeString("pt-BR");
+  st.classList.add("ok");
+}
+
 function capturarFoto() {
   const video = document.getElementById("video-camera");
   const canvas = document.getElementById("canvas-camera");
@@ -159,32 +190,50 @@ function capturarFoto() {
   canvas.height = video.videoHeight;
   const ctx = canvas.getContext("2d");
   ctx.drawImage(video, 0, 0);
-
-  /* marca d'água */
-  const agora = new Date();
-  const ts = agora.toLocaleString("pt-BR");
-  const marca = `${ts} | ${placaAtual} | ${chaveAtual}${latAtual ? " | GPS:" + latAtual + "," + lonAtual : ""}`;
-  ctx.font = "bold " + Math.max(14, canvas.width * 0.022) + "px monospace";
-  ctx.fillStyle = "rgba(0,0,0,0.55)";
-  ctx.fillRect(0, canvas.height - 40, canvas.width, 40);
-  ctx.fillStyle = "#FFFFFF";
-  ctx.fillText(marca, 10, canvas.height - 14);
-
-  const b64 = canvas.toDataURL("image/jpeg", 0.82).split(",")[1];
-  document.getElementById("foto_b64_" + chaveAtual).value = b64;
-  document.getElementById("captura_" + chaveAtual).value = agora.toISOString();
-  document.getElementById("gps_" + chaveAtual).value = latAtual ? latAtual + "," + lonAtual : "";
-
-  const prev = document.getElementById("preview-" + chaveAtual);
-  prev.src = "data:image/jpeg;base64," + b64;
-  prev.classList.add("tirada");
-
-  const st = document.getElementById("status-" + chaveAtual);
-  st.textContent = "✅ Foto tirada às " + agora.toLocaleTimeString("pt-BR");
-  st.classList.add("ok");
-
+  finalizarFoto(chaveAtual);
   fecharCamera();
 }
+
+/* Fallback: abre a CAMERA DO SISTEMA (nativa do celular).
+   Funciona mesmo dentro do navegador do WhatsApp, onde o
+   site nao consegue pedir permissao de camera (baloes e
+   sobreposicoes de app bloqueiam o getUserMedia). */
+function abrirCameraDoSistema(chave) {
+  chaveAtual = chave;
+  latAtual = null;
+  lonAtual = null;
+  navigator.geolocation.getCurrentPosition(p => {
+    latAtual = p.coords.latitude.toFixed(6);
+    lonAtual = p.coords.longitude.toFixed(6);
+  }, () => { latAtual = null; lonAtual = null; }, { timeout: 8000 });
+  document.getElementById("arquivo-" + chave).click();
+}
+
+function processarArquivoFoto(chave, arquivo) {
+  if (!arquivo) return;
+  const reader = new FileReader();
+  reader.onload = function () {
+    const img = new Image();
+    img.onload = function () {
+      const canvas = document.getElementById("canvas-camera");
+      const escala = Math.min(1, 1600 / img.width);
+      canvas.width = Math.round(img.width * escala);
+      canvas.height = Math.round(img.height * escala);
+      const ctx = canvas.getContext("2d");
+      ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+      finalizarFoto(chave);
+    };
+    img.src = reader.result;
+  };
+  reader.readAsDataURL(arquivo);
+}
+
+document.querySelectorAll('input[type="file"][id^="arquivo-"]').forEach(function (input) {
+  input.addEventListener("change", function () {
+    const chave = this.id.replace("arquivo-", "");
+    processarArquivoFoto(chave, this.files[0]);
+  });
+});
 
 function fecharCamera() {
   if (streamAtual) { streamAtual.getTracks().forEach(t => t.stop()); streamAtual = null; }
