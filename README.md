@@ -85,6 +85,7 @@ terminal mostra o IP da máquina (ex.: http://10.x.x.x:5000). Use
    Ou use o botão "Importar dados" dentro da área do administrador.
 
 ## Estrutura de pastas
+- `static/exemplos/` – fotos de exemplo (guia de ângulos), ver seção abaixo
 - `fotos/<PLACA>/<DATA_HORA>/` – fotos originais da vistoria (não versionadas)
 - `fotos/_thumbs/` – miniaturas geradas automaticamente
 - `instance/locaomd.db` – banco de dados SQLite
@@ -122,4 +123,35 @@ CC BY-SA exigem atribuição):
 
 > Nota: algumas categorias (pneus, piso, bancos) usam fotos de carro
 > inteiro por falta de close-ups livres adequados — troque manualmente
-> por fotos do seu próprio frota se quiser algo mais fiel.
+> por fotos do seu própria frota se quiser algo mais fiel.
+
+### Fotos por modelo (o mesmo carro em todas)
+O app passa a procurar primeiro em `static/exemplos/<modelo>/`
+(ex.: `static/exemplos/hyundai-creta/`). Se a pasta existir, cada
+motorista vê as fotos do **modelo exato do carro dele**; senão,
+volta para a pasta raiz acima.
+
+### Gerar as fotos com IA (mesmo modelo em todas)
+`gerar_exemplos_ia.py` gera as 14 fotos **todas do mesmo carro**
+(Hyundai Creta branco, por padrão) com gpt-image-1: primeiro cria
+uma foto "mestre" (frente) e depois gera cada ângulo por **edição
+da mestre**, garantindo o mesmo modelo/cor/rodas em todas.
+
+```
+pip install -r requirements.txt
+set OPENAI_API_KEY=sk-...     (Windows)
+python gerar_exemplos_ia.py                                  # pasta padrão
+python gerar_exemplos_ia.py --saida "static/exemplos/hyundai-creta"   # pasta do modelo
+python gerar_exemplos_ia.py --cor prata --ano 2024           # outra cor/ano
+python gerar_exemplos_ia.py --forcar                         # regera tudo
+python gerar_exemplos_ia.py --dry-run                        # só mostra os prompts
+```
+
+- Custo estimado: ~US$ 0,80 pelas 15 chamadas (quality=medium).
+- Originais em alta resolução ficam em `static/exemplos/_orig_ia/`
+  (ignorados pelo git); os JPGs exibidos são redimensionados para
+  no máximo 1200px.
+- Metadados e prompts de cada foto ficam em `static/exemplos/_creditos_ia.json`.
+- Fotos de IA são **ilustrativas**. Para fotos reais, fotografe um
+  veículo da frota nos 14 ângulos e copie as fotos (nomeadas como
+  as categorias) para a pasta do modelo.

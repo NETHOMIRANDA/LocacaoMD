@@ -8,4 +8,5 @@ cloudflared.exe
 
 tunnel*.log
 
-tunnel*.log
+# originais em alta resolução das fotos de exemplo (gerados por IA)
+_orig_ia/
