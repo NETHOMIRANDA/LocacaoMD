@@ -6,8 +6,8 @@
   <img class="exemplo" src="{{ src_exemplo }}" alt="Como tirar: {{ rotulo }}" id="exemplo-{{ chave }}">
   <div class="foto-campo-rotulo">{{ rotulo }}</div>
   <small>{{ dica }}</small>
-  <button type="button" class="botao botao-camera" onclick="abrirCamera('{{ chave }}')">📷 Tirar foto agora</button>
-  <button type="button" class="botao botao-alternativa" onclick="abrirCameraDoSistema('{{ chave }}')" title="Use se a câmera acima negar a permissão">📸 Câmera do sistema</button>
+  <button type="button" class="botao botao-camera" onclick="abrirCameraDoSistema('{{ chave }}')">📸 Tirar foto agora</button>
+  <button type="button" class="botao botao-alternativa" onclick="abrirCamera('{{ chave }}')" title="Use se a câmera do sistema não funcionar">📷 Câmera do navegador</button>
   <input type="file" id="arquivo-{{ chave }}" accept="image/*" capture="environment" hidden>
   <img class="preview" id="preview-{{ chave }}" alt="Prévia da foto">
   <div class="foto-status" id="status-{{ chave }}">📷 Foto não tirada</div>

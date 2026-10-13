@@ -27,9 +27,7 @@ CATEGORIAS = [
     ("interno_bancos",      "Interno – Bancos",        "Foto dos bancos dianteiros e traseiros"),
     ("interno_porta_malas", "Interno – Porta-malas",   "Foto do porta-malas aberto"),
     ("interno_teto",        "Interno – Teto",          "Foto do teto e forrações"),
-    ("interno_piso",        "Interno – Pisos",         "Foto do piso / carpete"),
     ("painel",                "Painel",                  "Foto do painel / velocímetro"),
-    ("motor",                 "Motor",                   "Foto do motor (em local claro e de dia)"),
 ]
 
 GRUPOS_CONDICAO = [
@@ -37,7 +35,6 @@ GRUPOS_CONDICAO = [
     ("pneus",    "Condição dos pneus"),
     ("interno",  "Condição do interior"),
     ("painel",   "Condição do painel"),
-    ("motor",    "Condição do motor"),
 ]
 
 OPCOES_CONDICAO = ["Ótimo", "Bom", "Regular", "Ruim"]
