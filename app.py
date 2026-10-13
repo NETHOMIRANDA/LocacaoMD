@@ -57,6 +57,32 @@ def fmt(data_iso):
         return data_iso
 
 
+def slug_modelo(veiculo):
+    """'Hyundai Creta' -> 'hyundai-creta' (para pasta de exemplos)."""
+    import re
+    import unicodedata
+    if not veiculo:
+        return ""
+    nfkd = unicodedata.normalize("NFKD", str(veiculo))
+    sem_acento = "".join(c for c in nfkd if not unicodedata.combining(c))
+    return re.sub(r"[^a-z0-9]+", "-", sem_acento.lower()).strip("-")[:60]
+
+
+def exemplos_para(veiculo):
+    """Mapeia cada categoria -> caminho da foto de exemplo.
+    Prefere static/exemplos/<modelo>/<categoria>.jpg (fotos do modelo
+    exato do veículo) e volta para static/exemplos/<categoria>.jpg."""
+    slug = slug_modelo(veiculo)
+    mapa = {}
+    for chave, _rotulo, _dica in db.CATEGORIAS:
+        por_modelo = f"exemplos/{slug}/{chave}.jpg"
+        if slug and os.path.exists(os.path.join(app.static_folder, por_modelo)):
+            mapa[chave] = por_modelo
+        else:
+            mapa[chave] = f"exemplos/{chave}.jpg"
+    return mapa
+
+
 def salvar_foto_base64(data_url, placa, data_vistoria, categoria):
     """Decodifica a foto capturada pela câmera (base64) e salva
     original + miniatura. Retorna (caminho, thumb) ou (None, None)."""
@@ -244,6 +270,7 @@ def nova_vistoria(motorista_id):
         grupos=db.GRUPOS_CONDICAO,
         opcoes=db.OPCOES_CONDICAO,
         hoje=hoje_str(),
+        exemplos=exemplos_para(m["veiculo"]),
     )
 
 

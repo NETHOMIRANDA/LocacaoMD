@@ -1,0 +1,59 @@
+﻿22:05:50  INICIO - espera curta (2 min)
+22:08:00  externo_frente: OK origem=2915x1543 licenca=by | Exeed E08 (concept car) front view | https://commons.wikimedia.org/w/index.php?curid=147769613
+22:08:33  externo_traseira: OK origem=1024x768 licenca=by-sa | File:GAZ-22171 'Sobol' and GAZ-3221 'GAZelle' as a Police cars (rear view).jpg | https://commons.wikimedia.org/w/index.php?curid=25205399
+22:09:05  externo_lado_dir: OK origem=1000x667 licenca=by | 0258 | https://www.flickr.com/photos/26611570@N04/3350539292
+22:09:36  pneu_dianteiro_esq: OK origem=1024x679 licenca=by | Mavic-R-SYS-SLR-Front(L)-and-Rear(R)-tires | https://www.flickr.com/photos/29558127@N06/14694992910
+22:10:10  pneu_dianteiro_dir: tentativa 1 formato invalido
+22:10:51  pneu_dianteiro_dir: tentativa 2 formato invalido
+22:11:32  pneu_dianteiro_dir: tentativa 3 formato invalido
+22:12:13  pneu_dianteiro_dir: tentativa 4 formato invalido
+22:13:25  pneu_traseiro_esq: OK origem=1024x679 licenca=by | Mavic-R-SYS-SLR-Front(L)-and-Rear(R)-tires | https://www.flickr.com/photos/29558127@N06/14694992910
+22:13:59  pneu_traseiro_dir: OK origem=1536x2048 licenca=cc0 | Car, Front tire, Failed Ball Joint | https://commons.wikimedia.org/w/index.php?curid=115400396
+22:14:32  interno_bancos: tentativa 1 formato invalido
+22:15:12  interno_bancos: tentativa 2 formato invalido
+22:15:54  interno_bancos: tentativa 3 formato invalido
+22:16:35  interno_bancos: tentativa 4 formato invalido
+22:17:45  interno_porta_malas: sem candidato
+22:18:26  interno_porta_malas: sem candidato
+22:19:06  interno_porta_malas: tentativa 3 ERRO O nome remoto não pôde ser resolvido: 'api.openverse.org'
+22:19:56  interno_porta_malas: sem candidato
+22:21:11  interno_teto: OK origem=2428x3500 licenca=by-sa | The Robin Hood Inn - Monnow Street, Monmouth - pub sign | https://commons.wikimedia.org/w/index.php?curid=163965392
+22:21:47  interno_piso: OK origem=1024x768 licenca=by | 225-39 1946 DeSoto Long wheelbase Suburban Custom 4 Door | https://www.flickr.com/photos/10966541@N02/3073256214
+22:22:20  painel: OK origem=1024x594 licenca=by | car inside | https://www.flickr.com/photos/22433418@N04/5037675054
+22:22:50  pneu_dianteiro_dir: FALLBACK (desenho antigo convertido)
+22:22:50  interno_bancos: FALLBACK (desenho antigo convertido)
+22:22:50  interno_porta_malas: FALLBACK (desenho antigo convertido)
+22:22:50  CONCLUIDO
+22:25:12  PASSE DE QUALIDADE - inicio (9 categorias)
+22:25:14  externo_lado_dir: QUALIDADE OK 1024x641 licenca=by-sa | Tesla plug-in electric car, left side profile, on freeway | https://www.flickr.com/photos/9998127@N06/4402050357
+22:25:41  pneu_dianteiro_esq: QUALIDADE OK 1024x954 licenca=by-nd | Smart Car Wheel | https://www.flickr.com/photos/7471115@N08/2581279047
+22:26:07  pneu_dianteiro_dir: ERRO Impossível conectar-se ao servidor remoto (tentativa 1)
+22:27:33  pneu_dianteiro_dir: QUALIDADE OK 3024x4032 licenca=by-sa | Car tire closeup 1 2019-01-15 | https://commons.wikimedia.org/w/index.php?curid=75863432
+22:28:02  pneu_traseiro_esq: QUALIDADE OK 1024x683 licenca=by | Marussia F1 car rear wheel | https://www.flickr.com/photos/62806367@N00/7448468546
+22:28:36  interno_bancos: QUALIDADE OK 2448x3264 licenca=by-sa | Child car seat | https://commons.wikimedia.org/w/index.php?curid=2232643
+22:29:26  interno_porta_malas: ERRO O tempo limite da operação foi atingido. (tentativa 1)
+22:30:24  interno_porta_malas: QUALIDADE OK 1024x683 licenca=by-sa | Car2Go/Smart Car Trunk | https://www.flickr.com/photos/25443792@N05/8376082216
+22:30:53  interno_teto: QUALIDADE OK 1024x768 licenca=by-sa | 2005 Mustang Concept car interior 2 | https://www.flickr.com/photos/59398780@N00/2210883440
+22:31:19  interno_piso: sem candidato filtrado (tentativa 1)
+22:31:49  interno_piso: sem candidato filtrado (tentativa 2)
+22:32:20  interno_piso: sem candidato filtrado (tentativa 3)
+22:32:50  interno_piso: sem candidato filtrado (tentativa 4)
+22:33:20  interno_piso: sem candidato filtrado (tentativa 5)
+22:33:51  interno_piso: sem candidato filtrado (tentativa 6)
+22:34:21  interno_piso: NAO CONSEGUIU substituir - mantem atual
+22:35:16  painel: QUALIDADE OK 2304x3072 licenca=by-sa | Car dashboard with MEX-BT2500 head unit and BCT-15 radio scanner installed and illuminated | https://commons.wikimedia.org/w/index.php?curid=4578366
+22:35:41  PASSE DE QUALIDADE - concluido
+22:37:31  PASSE 3 - inicio (4 categorias)
+22:37:34  interno_piso: sem candidato filtrado (tentativa 1)
+22:38:04  interno_piso: sem candidato filtrado (tentativa 2)
+22:38:34  interno_piso: sem candidato filtrado (tentativa 3)
+22:39:05  interno_piso: sem candidato filtrado (tentativa 4)
+22:39:35  interno_piso: sem candidato filtrado (tentativa 5)
+22:40:05  interno_piso: sem candidato filtrado (tentativa 6)
+22:40:35  interno_piso: sem candidato filtrado (tentativa 7)
+22:41:05  interno_piso: sem candidato filtrado (tentativa 8)
+22:41:35  interno_piso: NAO CONSEGUIU - mantem atual
+22:42:09  interno_bancos: PASSE3 OK 1024x768 licenca=by | Car cleaning | https://www.flickr.com/photos/12394349@N06/4849718464
+22:42:36  pneu_dianteiro_esq: PASSE3 OK 1024x733 licenca=by | Polesden Lacey - Oct 2010 - Jowett Jupiter - Classic Red Sports Car | https://www.flickr.com/photos/40837632@N05/5159348513
+22:43:03  pneu_traseiro_esq: PASSE3 OK 1024x747 licenca=by | Flat Tire | https://www.flickr.com/photos/39160147@N03/14970342360
+22:43:28  PASSE 3 - concluido
