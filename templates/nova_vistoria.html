@@ -4,8 +4,6 @@
 {% macro campo_camera(chave, rotulo, dica, placa, src_exemplo) %}
 <div class="foto-campo">
   <img class="exemplo" src="{{ src_exemplo }}" alt="Como tirar: {{ rotulo }}" id="exemplo-{{ chave }}">
-  <div class="foto-campo-rotulo">{{ rotulo }}</div>
-  <small>{{ dica }}</small>
   <button type="button" class="botao botao-camera" onclick="abrirCameraDoSistema('{{ chave }}')">📸 Tirar foto agora</button>
   <button type="button" class="botao botao-alternativa" onclick="abrirCamera('{{ chave }}')" title="Use se a câmera do sistema não funcionar">📷 Câmera do navegador</button>
   <input type="file" id="arquivo-{{ chave }}" accept="image/*" capture="environment" hidden>
@@ -43,9 +41,9 @@
     </div>
 
     <div class="aviso-luz">
-      <label class="check">
-        <input type="checkbox" name="dia_claro">
-        <span>Confirmo que <b>todas as fotos foram tiradas durante o dia, em local claro e aberto</b>.</span>
+      <label class="check" style="background: #fff3cd; padding: 15px; border-radius: 8px; display: block; cursor: pointer; border: 2px solid #ffc107;">
+        <input type="checkbox" name="dia_claro" id="dia_claro" style="transform: scale(1.5); margin-right: 10px;">
+        <span style="font-size: 16px; color: #856404;">Confirmo que <b>todas as fotos foram tiradas durante o dia, em local claro e aberto</b>.</span>
       </label>
     </div>
 
@@ -78,22 +76,10 @@
       {% endfor %}
     </div>
 
-    <h3 class="subsecao">🔧 Painel e motor</h3>
+    <h3 class="subsecao">🔧 Painel</h3>
     <div class="grade-fotos">
       {% for chave, rotulo, dica in categorias if not chave.startswith("externo_") and not chave.startswith("pneu_") and not chave.startswith("interno_") %}
       {{ campo_camera(chave, rotulo, dica, motorista.placa, url_for('static', filename=exemplos[chave])) }}
-      {% endfor %}
-    </div>
-
-    <h2 class="secao">⭐ Avaliação de cada área</h2>
-    <div class="grid-4">
-      {% for chave, rotulo in grupos %}
-      <label class="campo">
-        <span>{{ rotulo }}</span>
-        <select name="cond_{{ chave }}">
-          {% for op in opcoes %}<option>{{ op }}</option>{% endfor %}
-        </select>
-      </label>
       {% endfor %}
     </div>
 
@@ -249,7 +235,14 @@ function processarArquivoFoto(chave, arquivo) {
 document.querySelectorAll('input[type="file"][id^="arquivo-"]').forEach(function (input) {
   input.addEventListener("change", function () {
     const chave = this.id.replace("arquivo-", "");
+    // Preserva o estado do checkbox antes de processar a foto
+    const checkbox = document.getElementById("dia_claro");
+    const estadoCheckbox = checkbox ? checkbox.checked : false;
     processarArquivoFoto(chave, this.files[0]);
+    // Restaura o estado do checkbox
+    if (checkbox) {
+      checkbox.checked = estadoCheckbox;
+    }
   });
 });
 
