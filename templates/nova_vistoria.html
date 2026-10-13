@@ -3,7 +3,7 @@
 
 {% macro campo_camera(chave, rotulo, dica, placa) %}
 <div class="foto-campo">
-  <img class="exemplo" src="{{ url_for('static', filename='exemplos/' + chave + '.jpg') }}" alt="Como tirar: {{ rotulo }}">
+  <img class="exemplo" src="{{ url_for('static', filename='exemplos/' + chave + '.jpg') }}" alt="Como tirar: {{ rotulo }}" id="exemplo-{{ chave }}">
   <div class="foto-campo-rotulo">{{ rotulo }}</div>
   <small>{{ dica }}</small>
   <button type="button" class="botao botao-camera" onclick="abrirCamera('{{ chave }}')">📷 Tirar foto agora</button>
@@ -154,15 +154,33 @@ function atualizarHora() {
   setTimeout(atualizarHora, 1000);
 }
 
-/* Aplica a marca d'água (data/hora, placa, categoria e GPS)
-   e grava no formulario. Usada pela camera do modal E pela
-   "camera do sistema" (fallback). */
+/* Aplica a marca d'água (data/hora, placa, categoria, GPS)
+   e a foto de exemplo como referencia visual. Grava no formulario. */
 function finalizarFoto(chave) {
   const canvas = document.getElementById("canvas-camera");
   const ctx = canvas.getContext("2d");
   const agora = new Date();
   const ts = agora.toLocaleString("pt-BR");
   const marca = `${ts} | ${placaAtual} | ${chave}${latAtual ? " | GPS:" + latAtual + "," + lonAtual : ""}`;
+
+  // Carrega a foto de exemplo e desenha como marca d'água semi-transparente
+  const imgExemplo = document.getElementById("exemplo-" + chave);
+  if (imgExemplo && imgExemplo.complete && imgExemplo.naturalWidth > 0) {
+    // Desenha a foto de exemplo como marca d'água no canto inferior direito (30% do tamanho)
+    const larguraMarca = canvas.width * 0.30;
+    const alturaMarca = (imgExemplo.naturalHeight / imgExemplo.naturalWidth) * larguraMarca;
+    const xMarca = canvas.width - larguraMarca - 10;
+    const yMarca = canvas.height - alturaMarca - 50;
+    ctx.globalAlpha = 0.35; // 35% opacidade
+    ctx.drawImage(imgExemplo, xMarca, yMarca, larguraMarca, alturaMarca);
+    ctx.globalAlpha = 1.0;
+    // Borda branca na marca d'água
+    ctx.strokeStyle = "rgba(255,255,255,0.8)";
+    ctx.lineWidth = 2;
+    ctx.strokeRect(xMarca, yMarca, larguraMarca, alturaMarca);
+  }
+
+  // Barra de informações (data/hora, placa, GPS)
   ctx.font = "bold " + Math.max(14, canvas.width * 0.022) + "px monospace";
   ctx.fillStyle = "rgba(0,0,0,0.55)";
   ctx.fillRect(0, canvas.height - 40, canvas.width, 40);

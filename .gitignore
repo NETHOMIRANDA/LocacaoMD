@@ -9,3 +9,4 @@ cloudflared.exe
 tunnel*.log
 
 tunnel*.log
+app_erro.txt
