@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#0F172A">
+<title>MD Locações - Vistoria Enviada</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
+    background: #0F172A;
+    color: #F8FAFC;
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+  }
+  .sucesso-card {
+    background: #1E293B;
+    border-radius: 16px;
+    padding: 40px 30px;
+    max-width: 420px;
+    width: 100%;
+    text-align: center;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+  }
+  .icone-sucesso {
+    font-size: 80px;
+    margin-bottom: 20px;
+    animation: pop 0.5s ease;
+  }
+  @keyframes pop {
+    0% { transform: scale(0); opacity: 0; }
+    50% { transform: scale(1.2); }
+    100% { transform: scale(1); opacity: 1; }
+  }
+  h1 { font-size: 26px; font-weight: 800; margin-bottom: 10px; color: #10B981; }
+  .info-veiculo {
+    background: #0F172A;
+    border-radius: 10px;
+    padding: 14px;
+    margin: 20px 0;
+    font-size: 15px;
+  }
+  .info-veiculo b { color: #3B82F6; }
+  .detalhes {
+    font-size: 14px;
+    color: #94A3B8;
+    line-height: 1.6;
+    margin-bottom: 24px;
+  }
+  .btn-encerrar {
+    display: block;
+    width: 100%;
+    padding: 18px;
+    background: linear-gradient(135deg, #EF4444, #DC2626);
+    color: white;
+    border: none;
+    border-radius: 12px;
+    font-size: 20px;
+    font-weight: 800;
+    cursor: pointer;
+    text-decoration: none;
+    transition: transform 0.15s, opacity 0.15s;
+  }
+  .btn-encerrar:active { transform: scale(0.97); opacity: 0.9; }
+  .btn-nova {
+    display: inline-block;
+    margin-top: 14px;
+    color: #3B82F6;
+    text-decoration: none;
+    font-size: 14px;
+  }
+</style>
+</head>
+<body>
+<div class="sucesso-card">
+  <div class="icone-sucesso">✅</div>
+  <h1>VISTORIA ENVIADA!</h1>
+  <p style="font-size: 15px; color: #94A3B8; margin-top: 6px;">Todas as fotos foram recebidas com sucesso.</p>
+
+  <div class="info-veiculo">
+    <b>{{ motorista.veiculo }}</b><br>
+    Placa: <b>{{ motorista.placa }}</b><br>
+    Motorista: <b>{{ motorista.nome }}</b>
+  </div>
+
+  <div class="detalhes">
+    📅 Data: {{ hoje }}<br>
+    📸 Fotos enviadas: <b>12</b><br>
+    🏢 <b>MD Locações</b>
+  </div>
+
+  <a href="about:blank" class="btn-encerrar" onclick="window.close(); setTimeout(function(){ window.location.href='about:blank'; }, 200); return false;">
+    🔴 ENCERRAR VISTORIA
+  </a>
+
+  <a href="/m/{{ motorista.id }}" class="btn-nova">📷 Fazer nova vistoria</a>
+</div>
+</body>
+</html>

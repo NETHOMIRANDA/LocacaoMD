@@ -108,7 +108,6 @@ def init_db():
         )
     """)
 
-    # migração: colunas de captura em tempo real
     for col, padrao in (("cond_interno", "TEXT DEFAULT ''"),
                         ("captura_em", "TEXT DEFAULT ''"),
                         ("gps", "TEXT DEFAULT ''")):
@@ -116,7 +115,7 @@ def init_db():
         try:
             c.execute(f"ALTER TABLE {tabela} ADD COLUMN {col} {padrao}")
         except sqlite3.OperationalError:
-            pass  # coluna já existe
+            pass
 
     conn.commit()
     conn.close()
@@ -140,14 +139,11 @@ def set_config(chave, valor):
     conn.close()
 
 
-# ---------------------------------------------------------------
-# Regras de negócio
-# ---------------------------------------------------------------
-
 def ultima_vistoria(motorista_id):
     conn = get_connection()
     row = conn.execute(
-        "SELECT * FROM vistorias WHERE motorista_id = ? ORDER BY data_vistoria DESC, id DESC LIMIT 1",
+        "SELECT * FROM vistorias WHERE motorista_id = ? "
+        "ORDER BY data_vistoria DESC, id DESC LIMIT 1",
         (motorista_id,),
     ).fetchone()
     conn.close()
@@ -156,16 +152,32 @@ def ultima_vistoria(motorista_id):
 
 def proxima_vistoria(motorista_id):
     """Retorna (data_proxima, dias_restantes, vencida)."""
+    ult = ultima_vistoria(motorista_id)
+    if not ult:
+        return None, None, False
+
     import datetime as _dt
-    row = ultima_vistoria(motorista_id)
-    if not row:
-        return None, None, True
-    data = _dt.date.fromisoformat(row["data_vistoria"])
-    prox = data + _dt.timedelta(days=DIAS_VISTORIA)
+    try:
+        data_ult = _dt.date.fromisoformat(ult["data_vistoria"])
+    except (ValueError, TypeError):
+        return None, None, False
+
+    data_prox = data_ult + _dt.timedelta(days=DIAS_VISTORIA)
     hoje = _dt.date.today()
-    return prox.isoformat(), (prox - hoje).days, hoje > prox
+    dias = (data_prox - hoje).days
+    vencida = dias < 0
+    return data_prox.isoformat(), dias, vencida
 
 
-if __name__ == "__main__":
-    init_db()
-    print("Banco criado em:", DB_PATH)
+def listar_todos():
+    conn = get_connection()
+    rows = conn.execute("SELECT * FROM motoristas ORDER BY nome").fetchall()
+    conn.close()
+    return rows
+
+
+def buscar_por_placa(placa):
+    conn = get_connection()
+    row = conn.execute("SELECT * FROM motoristas WHERE placa = ?", (placa,)).fetchone()
+    conn.close()
+    return row

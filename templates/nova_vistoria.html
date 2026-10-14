@@ -3,11 +3,20 @@
 
 {% macro campo_camera(chave, rotulo, dica, placa, src_exemplo) %}
 <div class="foto-campo">
-  <img class="exemplo" src="{{ src_exemplo }}" alt="Como tirar: {{ rotulo }}" id="exemplo-{{ chave }}">
-  <button type="button" class="botao botao-camera" onclick="abrirCameraDoSistema('{{ chave }}')">📸 Tirar foto agora</button>
-  <input type="file" id="arquivo-{{ chave }}" accept="image/*" capture="environment" hidden>
-  <img class="preview" id="preview-{{ chave }}" alt="Prévia da foto">
-  <div class="foto-status" id="status-{{ chave }}">📷 Foto não tirada</div>
+  <div class="foto-campo-destaque" style="background: linear-gradient(135deg, #1a73e8, #0d47a1); color: white; padding: 12px 15px; border-radius: 10px 10px 0 0; text-align: center; font-size: 18px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 0;">
+    📸 {{ rotulo }}
+  </div>
+  <div style="background: #f0f4f8; padding: 10px; border-left: 4px solid #1a73e8; border-right: 4px solid #1a73e8;">
+    <div style="text-align: center; margin-bottom: 8px; font-size: 13px; color: #555; font-style: italic;">📷 Como tirar a foto:</div>
+    <img class="exemplo" src="{{ src_exemplo }}" alt="Como tirar: {{ rotulo }}" id="exemplo-{{ chave }}" style="width: 100%; max-width: 350px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.2); display: block; margin: 0 auto;">
+    <div style="text-align: center; margin-top: 8px; font-size: 13px; color: #333; font-weight: 600;">{{ dica }}</div>
+  </div>
+  <div style="background: #e8f0fe; padding: 12px; border: 4px solid #1a73e8; border-top: none; border-radius: 0 0 10px 10px;">
+    <button type="button" class="botao botao-camera" onclick="abrirCameraDoSistema('{{ chave }}')" style="width: 100%; font-size: 18px; padding: 15px; background: #34a853; color: white; border: none; border-radius: 8px; font-weight: 700; cursor: pointer;">📸 TIRAR FOTO AGORA</button>
+    <input type="file" id="arquivo-{{ chave }}" accept="image/*" capture="environment" hidden>
+    <img class="preview" id="preview-{{ chave }}" alt="Prévia da foto" style="width: 100%; max-width: 350px; margin-top: 10px; border-radius: 8px; display: none;">
+    <div class="foto-status" id="status-{{ chave }}" style="text-align: center; margin-top: 8px; font-size: 14px; color: #666;">📷 Foto não tirada</div>
+  </div>
   <input type="hidden" name="foto_b64_{{ chave }}" id="foto_b64_{{ chave }}">
   <input type="hidden" name="captura_{{ chave }}" id="captura_{{ chave }}">
   <input type="hidden" name="gps_{{ chave }}" id="gps_{{ chave }}">
@@ -16,6 +25,32 @@
 
 {% block conteudo %}
 <section class="formulario-vistoria">
+  <!-- Boas-vindas MD Locações -->
+  <div class="cartao" style="background: linear-gradient(135deg, #1a73e8, #0d47a1); border: none; padding: 20px; margin-bottom: 18px;">
+    <div style="text-align: center;">
+      <div style="font-size: 42px; margin-bottom: 8px;">🚗</div>
+      <h1 style="font-size: 22px; font-weight: 800; margin-bottom: 4px;">MD LOCAÇÕES</h1>
+      <p style="font-size: 16px; font-weight: 600; opacity: 0.95; margin-bottom: 12px;">Vistoria Mensal do Veículo</p>
+    </div>
+    <div style="background: rgba(255,255,255,0.12); border-radius: 10px; padding: 14px; margin-top: 8px;">
+      <p style="font-size: 14px; line-height: 1.6; color: white; margin-bottom: 10px;">
+        👋 <b>Olá, {{ motorista.nome }}!</b><br>
+        Este link é enviado <b>todo mês</b> para verificar as condições do veículo
+        <b>{{ motorista.veiculo }} — Placa {{ motorista.placa }}</b>.
+      </p>
+      <p style="font-size: 14px; line-height: 1.6; color: white; margin-bottom: 10px;">
+        📋 <b>Como funciona:</b><br>
+        1. Tire <b>12 fotos</b> seguindo o exemplo de cada foto abaixo<br>
+        2. Sempre tire as fotos <b>durante o dia, em local claro</b><br>
+        3. Certifique-se de que as fotos fiquem <b>bem nítidas</b><br>
+        4. Clique em <b>"ENVIAR VISTORIA"</b> ao finalizar
+      </p>
+      <p style="font-size: 13px; line-height: 1.5; color: #ffd54f; font-weight: 600;">
+        ⚠️ As fotos são obrigatórias e ficam gravadas com data, hora e GPS.
+      </p>
+    </div>
+  </div>
+
   <div class="cabecalho">
     <h1>📷 Nova vistoria</h1>
     <p class="sub">{{ motorista.veiculo }} &bull; Placa <b>{{ motorista.placa }}</b></p>
@@ -31,25 +66,11 @@
         <span>Km atual</span>
         <input type="text" name="km_atual" placeholder="Ex: 45.230" inputmode="numeric">
       </label>
-      <label class="campo">
-        <span>Condição geral</span>
-        <select name="condicao_geral">
-          {% for op in opcoes %}<option>{{ op }}</option>{% endfor %}
-        </select>
-      </label>
-    </div>
-
-    <div class="aviso-luz">
-      <label class="check" style="background: #fff3cd; padding: 15px; border-radius: 8px; display: block; cursor: pointer; border: 2px solid #ffc107;">
-        <input type="checkbox" name="dia_claro" id="dia_claro" style="transform: scale(1.5); margin-right: 10px;">
-        <span style="font-size: 16px; color: #856404;">Confirmo que <b>todas as fotos foram tiradas durante o dia, em local claro e aberto</b>.</span>
-      </label>
     </div>
 
     <div class="aviso-tempo">
-      ☀️ <b>As fotos são tiradas pela câmera no momento da vistoria.</b>
-      A data e a hora ficam gravadas na própria foto e no sistema —
-      não é possível anexar fotos de outro momento.
+      ☀️ <b>Tire todas as fotos durante o dia, em local claro e aberto.</b>
+      A data e a hora ficam gravadas na própria foto e no sistema.
     </div>
 
     <h2 class="secao">📷 Fotos obrigatórias - tire agora pela câmera</h2>
@@ -89,10 +110,21 @@
 
     <div class="acoes">
       <a href="{{ url_for('painel_motorista', motorista_id=motorista.id) }}" class="botao botao-secundario">← Voltar</a>
-      <button type="submit" class="botao botao-principal botao-grande">✅ Enviar vistoria</button>
+      <button type="submit" class="botao botao-principal botao-grande" style="background: #34a853; font-size: 20px; padding: 18px 40px; font-weight: 800;">✅ ENVIAR VISTORIA</button>
     </div>
   </form>
 </section>
+
+<!-- Overlay de enviando -->
+<div id="overlay-enviando" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 9999; justify-content: center; align-items: center; flex-direction: column;">
+  <div style="text-align: center; color: white; padding: 20px;">
+    <div style="font-size: 60px; margin-bottom: 20px;">📤</div>
+    <h2 style="font-size: 22px; margin-bottom: 10px;">Enviando vistoria...</h2>
+    <p style="font-size: 16px; opacity: 0.8;">Aguarde, as fotos estão sendo enviadas.</p>
+    <div style="margin-top: 20px; border: 4px solid #333; border-top: 4px solid #34a853; border-radius: 50%; width: 50px; height: 50px; animation: girar 1s linear infinite; margin: 20px auto;"></div>
+    <style>@keyframes girar { to { transform: rotate(360deg); } }</style>
+  </div>
+</div>
 
 <!-- Modal da câmera -->
 <div class="modal" id="modal-camera">
@@ -172,13 +204,14 @@ function finalizarFoto(chave) {
   ctx.fillStyle = "#FFFFFF";
   ctx.fillText(marca, 10, canvas.height - 14);
 
-  const dataUrl = canvas.toDataURL("image/jpeg", 0.82);
+  const dataUrl = canvas.toDataURL("image/jpeg", 0.70);
   document.getElementById("foto_b64_" + chave).value = dataUrl;
   document.getElementById("captura_" + chave).value = agora.toISOString();
   document.getElementById("gps_" + chave).value = latAtual ? latAtual + "," + lonAtual : "";
 
   const prev = document.getElementById("preview-" + chave);
   prev.src = dataUrl;
+  prev.style.display = "block";
   prev.classList.add("tirada");
 
   const st = document.getElementById("status-" + chave);
@@ -219,7 +252,7 @@ function processarArquivoFoto(chave, arquivo) {
     const img = new Image();
     img.onload = function () {
       const canvas = document.getElementById("canvas-camera");
-      const escala = Math.min(1, 1600 / img.width);
+      const escala = Math.min(1, 1200 / img.width);
       canvas.width = Math.round(img.width * escala);
       canvas.height = Math.round(img.height * escala);
       const ctx = canvas.getContext("2d");
@@ -259,10 +292,12 @@ document.getElementById("form-vistoria").addEventListener("submit", function(e) 
     alert("⚠️ Você ainda tem " + faltando + " foto(s) não tirada(s). Tire todas as fotos antes de enviar.");
     return;
   }
-  if (!document.querySelector("input[name='dia_claro']").checked) {
+  if (!confirm("✅ Confirmar envio?\n\nTire as fotos durante o dia, em local claro, para que fiquem bem nítidas.")) {
     e.preventDefault();
-    alert("⚠️ Confirme que as fotos foram tiradas durante o dia em local claro.");
+    return;
   }
+  /* Mostra tela de enviando */
+  document.getElementById("overlay-enviando").style.display = "flex";
 });
 </script>
 {% endblock %}

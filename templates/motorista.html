@@ -3,6 +3,26 @@
 
 {% block conteudo %}
 <section class="painel-motorista">
+  <!-- Boas-vindas MD Locações -->
+  <div class="cartao" style="background: linear-gradient(135deg, #1a73e8, #0d47a1); border: none; padding: 24px; margin-bottom: 18px;">
+    <div style="text-align: center;">
+      <div style="font-size: 48px; margin-bottom: 8px;">🚗</div>
+      <h1 style="font-size: 26px; font-weight: 800; margin-bottom: 4px;">MD LOCAÇÕES</h1>
+      <p style="font-size: 15px; opacity: 0.9; margin-bottom: 16px;">Sistema de Vistorias de Veículos</p>
+    </div>
+    <div style="background: rgba(255,255,255,0.1); border-radius: 10px; padding: 14px;">
+      <p style="font-size: 14px; line-height: 1.6; color: white;">
+        👋 <b>Olá, {{ motorista.nome }}!</b><br><br>
+        Este link é enviado <b>todo mês</b> para verificar as condições do seu veículo.<br><br>
+        📋 <b>Como usar:</b><br>
+        • Clique em <b>"Fazer vistoria agora"</b><br>
+        • Tire as <b>12 fotos</b> seguindo o exemplo de cada foto<br>
+        • Sempre durante o <b>dia, em local claro</b>, para que fiquem <b>bem nítidas</b><br>
+        • Ao finalizar, clique em <b>"ENVIAR VISTORIA"</b>
+      </p>
+    </div>
+  </div>
+
   <div class="cabecalho">
     <h1>{{ motorista.nome }}</h1>
     <p class="sub">{{ motorista.veiculo }} &bull; Placa <b>{{ motorista.placa }}</b></p>
@@ -55,9 +75,9 @@
         <li>Tire as fotos <b>durante o dia, em local claro</b></li>
         <li>Externo: frente, traseira, lado esquerdo e direito</li>
         <li>Os <b>4 pneus separadamente</b> (foto individual de cada)</li>
-        <li>Interior: bancos, porta-malas, teto e piso</li>
-        <li>Painel e motor</li>
-        <li>Avalie a condição de cada área e envie</li>
+        <li>Interior: bancos, porta-malas e teto</li>
+        <li>Painel do veículo</li>
+        <li>As fotos ficam gravadas com <b>data, hora e GPS</b></li>
       </ul>
     </div>
   </div>

@@ -2,11 +2,5 @@ instance/
 fotos/
 __pycache__/
 *.pyc
-.DS_Store
-
-cloudflared.exe
-
-tunnel*.log
-
-# originais em alta resolução das fotos de exemplo (gerados por IA)
-_orig_ia/
+.env
+*.log

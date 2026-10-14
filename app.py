@@ -19,6 +19,7 @@ import database as db
 
 app = Flask(__name__)
 app.secret_key = os.environ.get("LOCAOMD_CHAVE", "locaomd-secret-change-me")
+app.config['MAX_CONTENT_LENGTH'] = 200 * 1024 * 1024  # 200 MB (12 fotos em base64)
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 FOTOS_DIR = os.path.join(BASE_DIR, "fotos")
@@ -289,12 +290,7 @@ def salvar_vistoria(motorista_id):
 
     km = request.form.get("km_atual", "").strip()
     cond_geral = request.form.get("condicao_geral", "")
-    dia_claro = 1 if request.form.get("dia_claro") == "on" else 0
     observacao = request.form.get("observacao", "").strip()
-
-    if not dia_claro:
-        flash("É obrigatório confirmar que as fotos foram tiradas em local claro e durante o dia.", "erro")
-        return redirect(url_for("nova_vistoria", motorista_id=motorista_id))
 
     # coleta das fotos capturadas em tempo real pela câmera
     fotos_enviadas = {}
@@ -332,6 +328,7 @@ def salvar_vistoria(motorista_id):
             return redirect(url_for("nova_vistoria", motorista_id=motorista_id))
 
     # salva vistoria
+    dia_claro = 1  # sempre 1: fotos são tiradas ao vivo pela câmera
     conn = db.get_connection()
     cur = conn.cursor()
     cur.execute(
@@ -374,7 +371,16 @@ def salvar_vistoria(motorista_id):
 
     prox, dias, _ = db.proxima_vistoria(motorista_id)
     flash(f"Vistoria registrada! Próxima vistoria: {fmt(prox)} (em {db.DIAS_VISTORIA} dias).", "sucesso")
-    return redirect(url_for("painel_motorista", motorista_id=motorista_id))
+    return redirect(url_for("vistoria_sucesso", motorista_id=motorista_id))
+
+
+@app.route("/vistoria/sucesso/<int:motorista_id>", methods=["GET"])
+def vistoria_sucesso(motorista_id):
+    m = db.motorista_por_id(motorista_id)
+    if not m:
+        abort(404)
+    hoje = request.args.get("data") or datetime.date.today().isoformat()
+    return render_template("sucesso.html", motorista=m, hoje=hoje)
 
 
 # ----------------------------------------------------------------------

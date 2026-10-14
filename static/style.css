@@ -189,20 +189,20 @@ body {
 }
 
 .foto-campo {
-  background: var(--bg);
-  border: 1px solid var(--borda);
+  background: var(--card);
+  border: 2px solid var(--accent);
   border-radius: 12px;
-  padding: 12px;
+  overflow: hidden;
   text-align: center;
 }
 .foto-campo .exemplo {
   width: 100%;
+  max-width: 350px;
   border-radius: 8px;
   border: 1px solid var(--borda);
-  margin-bottom: 8px;
 }
-.foto-campo-rotulo { font-weight: 700; font-size: .92rem; margin-bottom: 4px; }
-.foto-campo small { display: block; color: var(--muted); font-size: .78rem; margin-bottom: 10px; }
+.foto-campo-rotulo { font-weight: 800; font-size: 1.1rem; margin-bottom: 4px; text-transform: uppercase; }
+.foto-campo small { display: block; color: var(--muted); font-size: .85rem; margin-bottom: 10px; }
 .botao-camera {
   width: 100%;
   background: var(--accent-2);
